@@ -155,5 +155,8 @@ if (fs.existsSync(angularIndexPath)) {
   }
 }
 
+// 7. Prevent Jekyll from processing the site (important for Storybook assets with underscores)
+fs.writeFileSync(path.join(deployRoot, '.nojekyll'), '');
+
 console.log('[prepare-pages-bundle] ✅ Unified Storybook bundle prepared successfully!');
 console.log(`[prepare-pages-bundle] 📦 Location: ${deployRoot}`);
