@@ -15,16 +15,6 @@ const config = {
       config.base = '/nucleus-design-system/';
     }
     
-    // Resolve all nucleus/* subpath imports (loader, components, etc.) to the sibling workspace package
-    const nucleusRoot = join(dirname(fileURLToPath(import.meta.url)), '../../nucleus');
-    config.resolve = config.resolve || {};
-    config.resolve.alias = [
-      ...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
-      { find: 'nucleus/loader', replacement: join(nucleusRoot, 'loader/index.js') },
-      { find: /^nucleus\/(.*)$/, replacement: join(nucleusRoot, '$1') },
-      { find: /^nucleus$/, replacement: join(nucleusRoot, 'dist/index.js') },
-    ];
-    
     return config;
   },
 };
