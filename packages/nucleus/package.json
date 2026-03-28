@@ -57,5 +57,17 @@
     "classnames": "^2.3.2",
     "typescript": "^5.3.2"
   },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist",
+          "{projectRoot}/loader",
+          "{projectRoot}/components",
+          "{projectRoot}/www"
+        ]
+      }
+    }
+  },
   "license": "MIT"
 }
