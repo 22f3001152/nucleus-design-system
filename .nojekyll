@@ -1,0 +1,2 @@
+# This file tells GitHub Pages to skip Jekyll processing.
+# We build our site (Storybook + Jekyll Blog) manually in a GitHub Action.
