@@ -20,9 +20,11 @@ const rootDir = path.resolve(__dirname, '..');
 // Source paths
 const reactStaticDir = path.join(rootDir, 'packages/sb-nucleus-react/storybook-static');
 const angularStaticDir = path.join(rootDir, 'packages/sb-nucleus-angular/storybook-static');
+const jekyllStaticDir = path.join(rootDir, 'docs/_site');
 
 // Target path (.deploy/pages-bundle)
 const deployRoot = path.join(rootDir, '.deploy/pages-bundle');
+const blogDeployDir = path.join(deployRoot, 'blog');
 
 console.log('[prepare-pages-bundle] 🚀 Starting unified bundle preparation for GitHub Pages...');
 
@@ -69,6 +71,14 @@ if (fs.existsSync(angularStaticDir)) {
   process.exit(1);
 }
 
+// 4.5 Copy Jekyll Blog (Subpath - /blog/)
+if (fs.existsSync(jekyllStaticDir)) {
+  console.log('[prepare-pages-bundle] 📦 Copying Jekyll Blog to /blog/ folder...');
+  copyRecursiveSync(jekyllStaticDir, blogDeployDir);
+} else {
+  console.warn('[prepare-pages-bundle] ⚠️ Warning: Jekyll Blog static files not found at ' + jekyllStaticDir);
+}
+
 // 5. Create Framework Switcher script
 const switcherJs = `
 (function() {
@@ -97,13 +107,26 @@ const switcherJs = `
       gap: 8px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    #framework-switcher:hover {
+    #blog-button {
+      position: fixed;
+      top: 10px;
+      right: 40px;
+      z-index: 999999;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #framework-switcher:hover, #blog-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-    }
-    #framework-switcher svg {
-      width: 16px;
-      height: 16px;
     }
   \`;
 
@@ -129,6 +152,13 @@ const switcherJs = `
   styleEl.innerHTML = style;
   document.head.appendChild(styleEl);
   document.body.appendChild(btn);
+
+  // Add Blog Button
+  const blogBtn = document.createElement('a');
+  blogBtn.id = 'blog-button';
+  blogBtn.href = '/nucleus-design-system/blog/';
+  blogBtn.innerHTML = '📝 Read Blog';
+  document.body.appendChild(blogBtn);
 })();
 `;
 

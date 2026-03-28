@@ -5,6 +5,8 @@ title: Building a Design System from Scratch
 
 Welcome to the complete implementation guide for Nucleus, a multi-framework design system built with Stencil.js.
 
+### 🚀 [View Live Design System Storybook](/nucleus-design-system/)
+
 ## What you will build
 
 - A core web-component library in `packages/nucleus`

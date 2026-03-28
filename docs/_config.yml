@@ -1,7 +1,7 @@
 title: "Building a Design System from Scratch"
 description: "Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows"
-url: "https://nucleusdocsdev.z22.web.core.windows.net"
-baseurl: ""
+url: "https://22f3001152.github.io"
+baseurl: "/nucleus-design-system/blog"
 theme: minima
 markdown: kramdown
 highlighter: rouge
@@ -39,3 +39,6 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
+  - .deploy
+  - .github
+  - vendor/

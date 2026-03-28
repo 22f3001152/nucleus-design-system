@@ -16,8 +16,8 @@
     "package-storybook:pages": "npm run build-storybook:bundle && node scripts/prepare-pages-bundle.cjs",
     "docs": "nx start nucleus-dev-docs",
     "test": "nx test nucleus",
-    "docs:blog": "cd docs && /opt/homebrew/opt/ruby/bin/bundle exec jekyll serve",
-    "docs:blog:build": "cd docs && /opt/homebrew/opt/ruby/bin/bundle exec jekyll build"
+    "docs:blog": "cd docs && bundle exec jekyll serve",
+    "docs:blog:build": "cd docs && bundle exec jekyll build"
   },
   "private": true,
   "engineStrict": true,
