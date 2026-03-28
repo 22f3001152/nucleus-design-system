@@ -1,0 +1,30 @@
+@use 'sass:map';
+
+$size-padding-x: (
+  xs: var(--nucleus-spacing-2),
+  sm: var(--nucleus-spacing-3),
+  md: var(--nucleus-spacing-3),
+  lg: var(--nucleus-spacing-4),
+  xl: var(--nucleus-spacing-4),
+) !default;
+
+$size-padding-y: (
+  xs: var(--nucleus-spacing-1),
+  sm: var(--nucleus-spacing-1-5),
+  md: var(--nucleus-spacing-2),
+  lg: var(--nucleus-spacing-2-5),
+  xl: var(--nucleus-spacing-3),
+) !default;
+
+$size-font: (
+  xs: var(--nucleus-font-size-xs),
+  sm: var(--nucleus-font-size-sm),
+  md: var(--nucleus-font-size-base),
+  lg: var(--nucleus-font-size-base),
+  xl: var(--nucleus-font-size-lg),
+) !default;
+
+@mixin size-variant($size) {
+  padding: map.get($size-padding-y, $size) map.get($size-padding-x, $size);
+  font-size: map.get($size-font, $size);
+}

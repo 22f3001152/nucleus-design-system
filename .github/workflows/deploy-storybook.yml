@@ -1,0 +1,84 @@
+name: Deploy Storybook WebApp
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+      provision_infra:
+        description: Run Bicep provisioning before deploy
+        required: true
+        default: true
+        type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - "infra/**"
+      - "scripts/**"
+      - "packages/sb-nucleus-react/**"
+      - "packages/sb-nucleus-angular/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-storybook.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_ENV: ${{ inputs.environment || vars.AZURE_ENV || 'dev' }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+      AZURE_APP_SERVICE_PLAN_NAME: ${{ vars.AZURE_APP_SERVICE_PLAN_NAME }}
+      AZURE_APP_INSIGHTS_NAME: ${{ vars.AZURE_APP_INSIGHTS_NAME }}
+      SB_USER: ${{ secrets.SB_USER }}
+      SB_PASS: ${{ secrets.SB_PASS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Provision infrastructure (optional)
+        if: ${{ github.event_name == 'push' || inputs.provision_infra == true }}
+        run: npm run deploy:storybook:infra
+
+      - name: Build and package Storybook webapp
+        run: npm run package-storybook:webapp
+
+      - name: Update app settings
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp config appsettings set \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_WEBAPP_NAME" \
+              --settings \
+                SB_USER="$SB_USER" \
+                SB_PASS="$SB_PASS" \
+                WEBSITES_PORT=8080 \
+                PORT=8080 \
+                SCM_DO_BUILD_DURING_DEPLOYMENT=false
+
+      - name: Deploy zip package
+        run: npm run deploy:storybook:app

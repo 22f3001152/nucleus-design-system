@@ -1,0 +1,20 @@
+main:
+  - title: Home
+    url: /
+  - title: About
+    url: /pages/about/
+  - title: Glossary
+    url: /pages/glossary/
+  - title: Quick Reference
+    url: /pages/quick-reference/
+series:
+  - title: "Part 1: Introduction and Goals"
+    path: /introduction/introduction-and-goals/
+  - title: "Part 2: Project Setup and Monorepo Architecture"
+    path: /project-setup/project-setup-and-monorepo/
+  - title: "Part 3: Stencil.js Deep Dive"
+    path: /stencil/stencil-js-deep-dive/
+  - title: "Part 4: Building Your First Component"
+    path: /components/building-your-first-component/
+  - title: "Part 5: SCSS and Design Tokens"
+    path: /styling/scss-and-design-tokens/

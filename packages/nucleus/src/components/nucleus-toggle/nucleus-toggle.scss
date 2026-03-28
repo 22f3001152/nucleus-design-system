@@ -1,0 +1,50 @@
+.nucleus-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.nucleus-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.nucleus-toggle-track {
+  position: relative;
+  display: inline-block;
+  border-radius: var(--nucleus-radius-full);
+  transition: background-color var(--nucleus-transition-fast);
+}
+.nucleus-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: var(--nucleus-color-white);
+  border: 1px solid var(--nucleus-color-gray-300);
+  border-radius: var(--nucleus-radius-full);
+  transition: transform var(--nucleus-transition-fast), width var(--nucleus-transition-fast), height var(--nucleus-transition-fast);
+}
+.nucleus-toggle-input:checked + .nucleus-toggle-track::after { transform: translateX(100%); }
+.nucleus-toggle-primary { background: var(--nucleus-color-primary); }
+.nucleus-toggle-primary:hover,
+.nucleus-toggle-input:checked + .nucleus-toggle-primary { background: var(--nucleus-color-primary-hover); }
+.nucleus-toggle-secondary { background: var(--nucleus-color-secondary); }
+.nucleus-toggle-secondary:hover,
+.nucleus-toggle-input:checked + .nucleus-toggle-secondary { background: var(--nucleus-color-secondary-hover); }
+.nucleus-toggle-xs { width: 1.75rem; height: 1rem; }
+.nucleus-toggle-xs::after { width: 0.75rem; height: 0.75rem; }
+.nucleus-toggle-sm { width: 2rem; height: 1.25rem; }
+.nucleus-toggle-sm::after { width: 0.875rem; height: 0.875rem; }
+.nucleus-toggle-md { width: 2.75rem; height: 1.5rem; }
+.nucleus-toggle-md::after { width: 1.25rem; height: 1.25rem; }
+.nucleus-toggle-lg { width: 3.5rem; height: 1.75rem; }
+.nucleus-toggle-lg::after { width: 1.5rem; height: 1.5rem; left: 4px; }
+.nucleus-toggle-xl { width: 4rem; height: 2rem; }
+.nucleus-toggle-xl::after { width: 1.75rem; height: 1.75rem; left: 4px; }

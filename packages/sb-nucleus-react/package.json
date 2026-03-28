@@ -1,0 +1,52 @@
+{
+  "name": "sb-nucleus-react",
+  "version": "0.2.0",
+  "description": "Starter template to get up and running quickly with React and Storybook",
+  "author": "Chromatic <https://chromatic.com/>",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chromaui/intro-storybook-react-template"
+  },
+  "bugs": {
+    "url": "https://github.com/chromaui/intro-storybook-react-template/issues"
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "nucleus": "*",
+    "nucleus-react": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sass": "^1.69.5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "storybook:protected": "node ../../scripts/serve-storybook-auth.cjs --dir storybook-static --port 6006",
+    "build-and-serve-protected": "npm run build-storybook && npm run storybook:protected",
+    "lint": "biome lint \"src\"",
+    "lint:fix": "biome check --apply \"src\"",
+    "format": "biome format \"src\" --write"
+  },
+  "devDependencies": {
+    "@storybook/addon-links": "^10.3.1",
+    "@storybook/addon-docs": "^10.3.1",
+    "@storybook/react": "^10.3.1",
+    "@storybook/react-vite": "^10.3.1",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^5.0.4",
+    "msw": "^1.2.1",
+    "msw-storybook-addon": "^1.10.0",
+    "prop-types": "^15.8.1",
+    "storybook": "^10.3.1",
+    "vite": "^7.1.12"
+  },
+  "resolutions": {
+    "jackspeak": "2.1.1"
+  }
+}

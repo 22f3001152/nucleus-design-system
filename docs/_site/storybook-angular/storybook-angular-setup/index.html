@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 9: Storybook Setup — Angular | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 9: Storybook Setup — Angular" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Setting up Storybook for Angular with Compodoc API documentation, module imports, and Angular-specific story patterns." />
+<meta property="og:description" content="Setting up Storybook for Angular with Compodoc API documentation, module imports, and Angular-specific story patterns." />
+<link rel="canonical" href="http://localhost:4000/storybook-angular/storybook-angular-setup/" />
+<meta property="og:url" content="http://localhost:4000/storybook-angular/storybook-angular-setup/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 9: Storybook Setup — Angular" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Setting up Storybook for Angular with Compodoc API documentation, module imports, and Angular-specific story patterns.","headline":"Part 9: Storybook Setup — Angular","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/storybook-angular/storybook-angular-setup/"},"url":"http://localhost:4000/storybook-angular/storybook-angular-setup/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 9: Storybook Setup — Angular</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 9</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#angular-storybook-differences">Angular Storybook Differences</a></li>
+<li class="toc-entry toc-h2"><a href="#critical-previewts-for-angular">Critical: preview.ts for Angular</a></li>
+<li class="toc-entry toc-h2"><a href="#compodoc-setup">Compodoc Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#angular-story-format">Angular Story Format</a></li>
+<li class="toc-entry toc-h2"><a href="#global-styles">Global Styles</a></li>
+<li class="toc-entry toc-h2"><a href="#storybook-port">Storybook Port</a></li>
+<li class="toc-entry toc-h2"><a href="#combined-bundle-for-deployment">Combined Bundle for Deployment</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="angular-storybook-differences">Angular Storybook Differences</h2>
+
+<p>React Storybook imports components directly. Angular Storybook must account for NgModules, dependency injection, and change detection. The <code class="language-plaintext highlighter-rouge">@storybook/angular</code> package handles these. The main differences: you provide <code class="language-plaintext highlighter-rouge">moduleMetadata</code> so stories have access to your modules, and you use Compodoc for API docs instead of Stencil’s generated docs.</p>
+
+<div class="mermaid">flowchart LR
+    A[Angular Storybook] --> B[moduleMetadata]
+    A --> C[Compodoc JSON]
+    A --> D[defineCustomElements]
+</div>
+
+<h2 id="critical-previewts-for-angular">Critical: preview.ts for Angular</h2>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">setCompodocJson</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/addon-docs/angular</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">moduleMetadata</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/angular</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus/loader</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">docJson</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../documentation.json</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">setCompodocJson</span><span class="p">(</span><span class="nx">docJson</span><span class="p">);</span>
+<span class="nf">defineCustomElements</span><span class="p">(</span><span class="nb">window</span><span class="p">);</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">decorators</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="nf">moduleMetadata</span><span class="p">({</span>
+    <span class="na">imports</span><span class="p">:</span> <span class="p">[</span><span class="nx">CommonModule</span><span class="p">,</span> <span class="nx">NucleusComponentLibraryModule</span><span class="p">]</span>
+  <span class="p">})</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<p><strong>Key pieces</strong>:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">setCompodocJson(docJson)</code></strong>: Loads Angular API metadata. Compodoc generates <code class="language-plaintext highlighter-rouge">documentation.json</code> from your Angular library.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">moduleMetadata</code></strong>: Makes <code class="language-plaintext highlighter-rouge">NucleusComponentLibraryModule</code> available to every story. Without it, Angular doesn’t recognize <code class="language-plaintext highlighter-rouge">nucleus-button</code>.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">defineCustomElements(window)</code></strong>: Registers web components.</li>
+</ol>
+
+<h2 id="compodoc-setup">Compodoc Setup</h2>
+
+<p>Compodoc generates API documentation from Angular decorators and JSDoc. Add to <code class="language-plaintext highlighter-rouge">package.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"compodoc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"compodoc -p tsconfig.json -e json -d ."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"storybook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run compodoc &amp;&amp; storybook dev -p 6007"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Run <code class="language-plaintext highlighter-rouge">compodoc</code> before Storybook so <code class="language-plaintext highlighter-rouge">documentation.json</code> exists. Storybook’s docs addon uses it for the ArgsTable and API panels.</p>
+
+<h2 id="angular-story-format">Angular Story Format</h2>
+
+<p>Stories use templates instead of JSX:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">meta</span><span class="p">:</span> <span class="nx">Meta</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">render</span><span class="p">:</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">({</span>
+    <span class="na">props</span><span class="p">:</span> <span class="nx">args</span><span class="p">,</span>
+    <span class="na">template</span><span class="p">:</span> <span class="s2">`
+      &lt;nucleus-button
+        [type]="type"
+        [size]="size"
+        [rounded]="rounded"
+        [disabled]="disabled"
+        (nucleusClick)="onClick()"
+      &gt;
+        
+      &lt;/nucleus-button&gt;
+    `</span>
+  <span class="p">}),</span>
+  <span class="na">argTypes</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">label</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">text</span><span class="dl">'</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Primary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Primary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>Property binding</strong>: <code class="language-plaintext highlighter-rouge">[type]="type"</code> for inputs.</li>
+  <li><strong>Event binding</strong>: <code class="language-plaintext highlighter-rouge">(nucleusClick)="onClick()"</code> for outputs.</li>
+  <li><strong>Interpolation</strong>: `` for text.</li>
+</ul>
+
+<h2 id="global-styles">Global Styles</h2>
+
+<p>In <code class="language-plaintext highlighter-rouge">src/styles.css</code> or <code class="language-plaintext highlighter-rouge">main.ts</code> styles array:</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@import</span> <span class="s2">'nucleus/dist/nucleus/nucleus.css'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Reference this in Storybook config so it loads for all stories. Without it, components render unstyled.</p>
+
+<h2 id="storybook-port">Storybook Port</h2>
+
+<p>React and Angular Storybooks use different ports to run simultaneously (e.g., 6006 for React, 6007 for Angular). Configure in <code class="language-plaintext highlighter-rouge">package.json</code> or Storybook config.</p>
+
+<h2 id="combined-bundle-for-deployment">Combined Bundle for Deployment</h2>
+
+<p>For production, both Storybooks are built and combined into one deployable package. Users see an index page with links to React and Angular docs. The <code class="language-plaintext highlighter-rouge">prepare-storybook-webapp-package.cjs</code> script handles this.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 10 explains Atomic Design—how to categorize components as atoms, molecules, and elements, and why that structure matters for Storybook and maintainability.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

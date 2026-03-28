@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 15: Project Structure Reference | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 15: Project Structure Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Complete reference guide to the Nucleus monorepo structure—what every directory and file does and how they interconnect." />
+<meta property="og:description" content="Complete reference guide to the Nucleus monorepo structure—what every directory and file does and how they interconnect." />
+<link rel="canonical" href="http://localhost:4000/reference/project-structure-reference/" />
+<meta property="og:url" content="http://localhost:4000/reference/project-structure-reference/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 15: Project Structure Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Complete reference guide to the Nucleus monorepo structure—what every directory and file does and how they interconnect.","headline":"Part 15: Project Structure Reference","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/reference/project-structure-reference/"},"url":"http://localhost:4000/reference/project-structure-reference/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 15: Project Structure Reference</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 15</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#repository-root">Repository Root</a></li>
+<li class="toc-entry toc-h2"><a href="#package-dependency-graph">Package Dependency Graph</a></li>
+<li class="toc-entry toc-h2"><a href="#packagesnucleus--core-library">packages/nucleus — Core Library</a></li>
+<li class="toc-entry toc-h2"><a href="#packagesnucleus-react--react-wrapper">packages/nucleus-react — React Wrapper</a></li>
+<li class="toc-entry toc-h2"><a href="#packagesnucleus-angular--angular-wrapper">packages/nucleus-angular — Angular Wrapper</a></li>
+<li class="toc-entry toc-h2"><a href="#packagessb-nucleus-react--sb-nucleus-angular">packages/sb-nucleus-react &amp; sb-nucleus-angular</a></li>
+<li class="toc-entry toc-h2"><a href="#scripts">scripts/</a></li>
+<li class="toc-entry toc-h2"><a href="#infra">infra/</a></li>
+<li class="toc-entry toc-h2"><a href="#key-commands">Key Commands</a></li>
+<li class="toc-entry toc-h2"><a href="#file-naming-conventions">File Naming Conventions</a></li>
+<li class="toc-entry toc-h2"><a href="#gitignore">Gitignore</a></li>
+</ul>
+</div>
+
+
+  <h2 id="repository-root">Repository Root</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus/
+├── packages/         # All npm workspace packages
+├── infra/            # Azure Bicep templates
+├── scripts/          # Build and deploy helpers
+├── docs/             # This Jekyll blog
+├── package.json      # Workspaces, root scripts
+├── nx.json           # Nx task defaults
+└── biome.json        # Linting and formatting
+</code></pre></div></div>
+
+<h2 id="package-dependency-graph">Package Dependency Graph</h2>
+
+<div class="mermaid">flowchart TB
+    N[nucleus]
+    R[nucleus-react]
+    A[nucleus-angular]
+    SR[sb-nucleus-react]
+    SA[sb-nucleus-angular]
+    N --> R
+    N --> A
+    R --> SR
+    A --> SA
+</div>
+
+<p>Build order flows from bottom to top of this graph: nucleus first, then wrappers, then Storybooks.</p>
+
+<h2 id="packagesnucleus--core-library">packages/nucleus — Core Library</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus/
+├── src/
+│   ├── components/       # Stencil components (nucleus-button, etc.)
+│   │   └── nucleus-button/
+│   │       ├── nucleus-button.tsx
+│   │       ├── nucleus-button.scss
+│   │       └── nucleus-button.spec.tsx
+│   ├── styles/
+│   │   ├── tokens/       # SCSS variables
+│   │   ├── mixins/
+│   │   ├── _custom-properties.scss
+│   │   └── styles.scss
+│   └── index.ts
+├── stencil.config.ts
+└── package.json
+</code></pre></div></div>
+
+<p><strong>Key files</strong>: <code class="language-plaintext highlighter-rouge">stencil.config.ts</code> (output targets, plugins), <code class="language-plaintext highlighter-rouge">styles/styles.scss</code> (global entry), <code class="language-plaintext highlighter-rouge">styles/tokens/</code> (design tokens).</p>
+
+<h2 id="packagesnucleus-react--react-wrapper">packages/nucleus-react — React Wrapper</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus-react/
+├── lib/components/react-lib/   # Auto-generated (do not edit)
+├── dist/
+└── package.json
+</code></pre></div></div>
+
+<p>Stencil regenerates <code class="language-plaintext highlighter-rouge">lib/</code> on every nucleus build. The package compiles TypeScript to <code class="language-plaintext highlighter-rouge">dist/</code>.</p>
+
+<h2 id="packagesnucleus-angular--angular-wrapper">packages/nucleus-angular — Angular Wrapper</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus-angular/
+├── projects/nucleus-ng-component-library/
+│   └── src/lib/
+│       ├── proxies.ts      # Auto-generated directives
+│       └── ...
+├── dist/
+└── angular.json
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">proxies.ts</code> is auto-generated. Build with <code class="language-plaintext highlighter-rouge">ng-packagr</code> to produce APF output.</p>
+
+<h2 id="packagessb-nucleus-react--sb-nucleus-angular">packages/sb-nucleus-react &amp; sb-nucleus-angular</h2>
+
+<p>Storybook packages. Critical: <code class="language-plaintext highlighter-rouge">preview.ts</code> must import <code class="language-plaintext highlighter-rouge">nucleus.css</code> and call <code class="language-plaintext highlighter-rouge">defineCustomElements()</code>. Angular Storybook also needs Compodoc and <code class="language-plaintext highlighter-rouge">moduleMetadata</code>.</p>
+
+<h2 id="scripts">scripts/</h2>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">prepare-storybook-webapp-package.cjs</code></strong>: Combines React + Angular Storybook builds, adds auth server, creates zip.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">serve-storybook-bundle-auth.cjs</code></strong>: Express server with basic auth for the bundled Storybook.</li>
+</ul>
+
+<h2 id="infra">infra/</h2>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">main.bicep</code></strong>: Root template. Parameters: location, webAppName, sbUser, sbPass.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">modules/</code></strong>: app-service-plan, web-app, app-insights.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">params/</code></strong>: dev.bicepparam, prod.bicepparam for environment-specific values.</li>
+</ul>
+
+<h2 id="key-commands">Key Commands</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run build</code></td>
+      <td>Build all packages (Nx order)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run lint</code></td>
+      <td>Lint all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run format</code></td>
+      <td>Format all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run storybook</code></td>
+      <td>Start both Storybooks</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run build-storybook:bundle</code></td>
+      <td>Build combined Storybook for deploy</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run deploy:storybook</code></td>
+      <td>Full infra + app deploy</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="file-naming-conventions">File Naming Conventions</h2>
+
+<ul>
+  <li>Components: <code class="language-plaintext highlighter-rouge">nucleus-{name}.tsx</code></li>
+  <li>Styles: <code class="language-plaintext highlighter-rouge">nucleus-{name}.scss</code></li>
+  <li>Tests: <code class="language-plaintext highlighter-rouge">nucleus-{name}.spec.tsx</code></li>
+  <li>Stories: <code class="language-plaintext highlighter-rouge">{Name}.stories.tsx</code> or <code class="language-plaintext highlighter-rouge">.ts</code></li>
+</ul>
+
+<h2 id="gitignore">Gitignore</h2>
+
+<p><code class="language-plaintext highlighter-rouge">node_modules/</code>, <code class="language-plaintext highlighter-rouge">dist/</code>, <code class="language-plaintext highlighter-rouge">.nx/cache/</code>, <code class="language-plaintext highlighter-rouge">.deploy/</code>, <code class="language-plaintext highlighter-rouge">storybook-static/</code> are ignored. Never commit build artifacts.</p>
+
+<hr />
+
+<p>You now have a complete reference for navigating Nucleus. Return to earlier parts for deep dives on specific topics. The structure should feel intuitive: core → wrappers → documentation, with shared tooling and infra at the root.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

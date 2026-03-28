@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 12: Stencil Auto-Generated Documentation | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 12: Stencil Auto-Generated Documentation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Leveraging Stencil’s docs-json output target and JSDoc comments to auto-generate comprehensive API documentation." />
+<meta property="og:description" content="Leveraging Stencil’s docs-json output target and JSDoc comments to auto-generate comprehensive API documentation." />
+<link rel="canonical" href="http://localhost:4000/docs/auto-generated-docs/" />
+<meta property="og:url" content="http://localhost:4000/docs/auto-generated-docs/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 12: Stencil Auto-Generated Documentation" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Leveraging Stencil’s docs-json output target and JSDoc comments to auto-generate comprehensive API documentation.","headline":"Part 12: Stencil Auto-Generated Documentation","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/docs/auto-generated-docs/"},"url":"http://localhost:4000/docs/auto-generated-docs/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 12: Stencil Auto-Generated Documentation</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 12</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#the-documentation-challenge">The Documentation Challenge</a></li>
+<li class="toc-entry toc-h2"><a href="#stencils-docs-flag">Stencil’s –docs Flag</a></li>
+<li class="toc-entry toc-h2"><a href="#enhancing-docs-with-jsdoc">Enhancing Docs with JSDoc</a></li>
+<li class="toc-entry toc-h2"><a href="#docs-json-output-target">docs-json Output Target</a></li>
+<li class="toc-entry toc-h2"><a href="#docs-readme-output-target">docs-readme Output Target</a></li>
+<li class="toc-entry toc-h2"><a href="#storybook-autodocs-integration">Storybook Autodocs Integration</a></li>
+<li class="toc-entry toc-h2"><a href="#writing-effective-jsdoc">Writing Effective JSDoc</a></li>
+<li class="toc-entry toc-h2"><a href="#angular-compodoc-instead">Angular: Compodoc Instead</a></li>
+<li class="toc-entry toc-h2"><a href="#verification">Verification</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="the-documentation-challenge">The Documentation Challenge</h2>
+
+<p>Manual documentation drifts. Props change, developers forget to update docs, and you end up with code and docs saying different things. The solution: generate documentation from code. Stencil provides built-in tools so your API docs stay accurate without extra effort.</p>
+
+<div class="mermaid">flowchart LR
+    A[JSDoc in TSX] --> B[Stencil Build]
+    B --> C[docs.json]
+    B --> D[readme.md]
+    C --> E[Storybook]
+</div>
+
+<h2 id="stencils-docs-flag">Stencil’s –docs Flag</h2>
+
+<p>When you run <code class="language-plaintext highlighter-rouge">stencil build --docs</code>, Stencil extracts metadata from your components and generates documentation. The <code class="language-plaintext highlighter-rouge">--docs</code> flag enables:</p>
+
+<ul>
+  <li><strong>Property tables</strong>: Derived from <code class="language-plaintext highlighter-rouge">@Prop()</code> decorators and TypeScript types</li>
+  <li><strong>Event tables</strong>: From <code class="language-plaintext highlighter-rouge">@Event()</code> declarations</li>
+  <li><strong>Method tables</strong>: From <code class="language-plaintext highlighter-rouge">@Method()</code> if used</li>
+</ul>
+
+<p>Each component gets a <code class="language-plaintext highlighter-rouge">readme.md</code> in its folder with an auto-generated API section.</p>
+
+<h2 id="enhancing-docs-with-jsdoc">Enhancing Docs with JSDoc</h2>
+
+<p>JSDoc comments improve the generated output:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Visual style variant for the button.
+ * - `primary`: Solid background, high emphasis
+ * - `secondary`: Outlined, medium emphasis
+ */</span>
+<span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="kd">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="cm">/**
+ * Emitted when the button is clicked.
+ */</span>
+<span class="p">@</span><span class="nd">Event</span><span class="p">()</span> <span class="nx">nucleusClick</span><span class="p">:</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="k">void</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>These appear in the property table, Storybook autodocs, and IDE tooltips. A few lines of JSDoc make a big difference for consumers.</p>
+
+<h2 id="docs-json-output-target">docs-json Output Target</h2>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">stencil.config.ts</code> for machine-readable output:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="nl">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">docs-json</span><span class="dl">'</span><span class="p">,</span>
+  <span class="nx">file</span><span class="p">:</span> <span class="dl">'</span><span class="s1">dist/docs.json</span><span class="dl">'</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>After build, <code class="language-plaintext highlighter-rouge">dist/docs.json</code> contains structured data for all components. Tools can consume this for custom doc generators or API portals.</p>
+
+<h2 id="docs-readme-output-target">docs-readme Output Target</h2>
+
+<p>Stencil can generate <code class="language-plaintext highlighter-rouge">readme.md</code> per component:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="nl">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">docs-readme</span><span class="dl">'</span><span class="p">,</span>
+  <span class="nx">dir</span><span class="p">:</span> <span class="dl">'</span><span class="s1">src/components</span><span class="dl">'</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The readme includes a property table and events table. Content above <code class="language-plaintext highlighter-rouge">&lt;!-- Auto Generated Below --&gt;</code> is preserved; Stencil only regenerates the API section.</p>
+
+<h2 id="storybook-autodocs-integration">Storybook Autodocs Integration</h2>
+
+<p>With <code class="language-plaintext highlighter-rouge">tags: ['autodocs']</code> on your Storybook meta, Storybook generates a Docs tab. It uses TypeScript types and, when configured, can pull from Stencil’s docs. The result: a live props table with controls, code examples, and event documentation—all driven by your source code.</p>
+
+<h2 id="writing-effective-jsdoc">Writing Effective JSDoc</h2>
+
+<p><strong>Good</strong>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Size variant affecting padding and font size.
+ * - `small`: Compact for dense UIs
+ * - `medium`: Default, balanced
+ * - `large`: Prominent actions
+ */</span>
+<span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">size</span><span class="p">:</span> <span class="dl">'</span><span class="s1">small</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">medium</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">large</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">medium</span><span class="dl">'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><strong>Poor</strong>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/** The size */</span>
+<span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">size</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Good docs explain what the prop controls, when to use each value, and how it affects the component.</p>
+
+<h2 id="angular-compodoc-instead">Angular: Compodoc Instead</h2>
+
+<p>For Angular Storybook, Compodoc generates <code class="language-plaintext highlighter-rouge">documentation.json</code> from Angular decorators. Use <code class="language-plaintext highlighter-rouge">setCompodocJson()</code> in preview to feed it to Storybook. Stencil’s docs apply to the core; Compodoc applies to the Angular wrapper layer.</p>
+
+<h2 id="verification">Verification</h2>
+
+<p>After build:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">test</span> <span class="nt">-f</span> packages/nucleus/dist/docs.json <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"docs.json exists"</span>
+<span class="nb">test</span> <span class="nt">-f</span> packages/nucleus/src/components/nucleus-button/readme.md <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"README updated"</span>
+</code></pre></div></div>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 13 covers monorepo tooling—Nx caching, Biome for linting/formatting, and CI pipelines for automated validation.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

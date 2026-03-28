@@ -1,0 +1,14 @@
+@use 'colors' as colors;
+
+$nucleus-radius-none: 0 !default;
+$nucleus-radius-sm: 0.125rem !default;
+$nucleus-radius-md: 0.375rem !default;
+$nucleus-radius-lg: 0.5rem !default;
+$nucleus-radius-xl: 0.75rem !default;
+$nucleus-radius-full: 9999px !default;
+
+$nucleus-border-width-default: 1px !default;
+$nucleus-border-width-2: 2px !default;
+
+$nucleus-border-color-default: colors.$nucleus-color-gray-300 !default;
+$nucleus-border-color-light: colors.$nucleus-color-gray-200 !default;

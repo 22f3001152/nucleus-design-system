@@ -1,0 +1,22 @@
+@use 'custom-properties';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--nucleus-font-family-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  src: url('/dist/nucleus/fonts/ComicNeue-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}

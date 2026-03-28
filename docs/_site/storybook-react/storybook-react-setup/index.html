@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 8: Storybook Setup — React | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 8: Storybook Setup — React" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Building interactive component documentation with Storybook for React, including story structure, controls, and global style loading." />
+<meta property="og:description" content="Building interactive component documentation with Storybook for React, including story structure, controls, and global style loading." />
+<link rel="canonical" href="http://localhost:4000/storybook-react/storybook-react-setup/" />
+<meta property="og:url" content="http://localhost:4000/storybook-react/storybook-react-setup/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 8: Storybook Setup — React" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Building interactive component documentation with Storybook for React, including story structure, controls, and global style loading.","headline":"Part 8: Storybook Setup — React","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/storybook-react/storybook-react-setup/"},"url":"http://localhost:4000/storybook-react/storybook-react-setup/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 8: Storybook Setup — React</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 8</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#why-storybook-for-design-systems">Why Storybook for Design Systems?</a></li>
+<li class="toc-entry toc-h2"><a href="#project-structure">Project Structure</a></li>
+<li class="toc-entry toc-h2"><a href="#critical-previewts-configuration">Critical: preview.ts Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#story-structure-csf3">Story Structure (CSF3)</a></li>
+<li class="toc-entry toc-h2"><a href="#storybook-categories">Storybook Categories</a></li>
+<li class="toc-entry toc-h2"><a href="#running-storybook">Running Storybook</a></li>
+<li class="toc-entry toc-h2"><a href="#common-gotcha-styles-not-loading">Common Gotcha: Styles Not Loading</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="why-storybook-for-design-systems">Why Storybook for Design Systems?</h2>
+
+<p>Storybook is the industry standard for component documentation. It lets you view components in isolation, tweak props in real time, and auto-generate API docs from TypeScript. Designers and QA can explore components without running the full app. Major design systems (Material-UI, Carbon, Ant Design) use Storybook as their primary docs tool.</p>
+
+<p>For Nucleus, we run two Storybooks—one for React and one for Angular—so each framework’s developers see usage examples in their preferred syntax.</p>
+
+<h2 id="project-structure">Project Structure</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>packages/sb-nucleus-react/
+├── .storybook/
+│   ├── main.ts       # Storybook config, addons, framework
+│   └── preview.ts    # Global decorators, parameters, CSS
+├── src/stories/
+│   ├── ATOMS/        # Button, Input, Checkbox, etc.
+│   ├── MOLECULES/    # Header, Footer, Multiselect
+│   └── ELEMENTS/     # Login page, Dashboard
+└── package.json
+</code></pre></div></div>
+
+<h2 id="critical-previewts-configuration">Critical: preview.ts Configuration</h2>
+
+<p>The preview file sets up requirements shared by all stories:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus/loader</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="dl">'</span><span class="s1">nucleus/dist/nucleus/nucleus.css</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">defineCustomElements</span><span class="p">();</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">parameters</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">controls</span><span class="p">:</span> <span class="p">{</span> <span class="na">expanded</span><span class="p">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="na">options</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">storySort</span><span class="p">:</span> <span class="p">{</span> <span class="na">order</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">ATOMS</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">MOLECULES</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">ELEMENTS</span><span class="dl">'</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><strong>Two essential lines</strong>:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">defineCustomElements()</code></strong>: Registers all Nucleus web components. Without this, <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> is unknown HTML.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">import 'nucleus/dist/nucleus/nucleus.css'</code></strong>: Loads design tokens and component styles. Without this, components render unstyled.</li>
+</ol>
+
+<h2 id="story-structure-csf3">Story Structure (CSF3)</h2>
+
+<p>Stories use Component Story Format 3:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="kd">type</span> <span class="p">{</span> <span class="nx">Meta</span><span class="p">,</span> <span class="nx">StoryObj</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/react</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">NucleusButton</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus-react</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">meta</span><span class="p">:</span> <span class="nx">Meta</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">NucleusButton</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">component</span><span class="p">:</span> <span class="nx">NucleusButton</span><span class="p">,</span>
+  <span class="na">tags</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">autodocs</span><span class="dl">'</span><span class="p">],</span>
+  <span class="na">argTypes</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">size</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">xs</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">sm</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">lg</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">xl</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">rounded</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">boolean</span><span class="dl">'</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">meta</span><span class="p">;</span>
+<span class="kd">type</span> <span class="nx">Story</span> <span class="o">=</span> <span class="nx">StoryObj</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">NucleusButton</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Primary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="na">children</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Primary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Secondary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">,</span> <span class="na">children</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Secondary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">title</code></strong>: Determines sidebar location. <code class="language-plaintext highlighter-rouge">ATOMS/Button</code> nests under ATOMS.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">tags: ['autodocs']</code></strong>: Auto-generates a Docs tab with prop tables.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">argTypes</code></strong>: Configures Controls panel (select, boolean, text).</li>
+  <li><strong>Named exports</strong>: Each is a story variant.</li>
+</ul>
+
+<h2 id="storybook-categories">Storybook Categories</h2>
+
+<div class="mermaid">flowchart TD
+    A[ATOMS] --> B[Button]
+    A --> C[Input]
+    A --> D[Checkbox]
+    E[MOLECULES] --> F[Header]
+    E --> G[Multiselect]
+</div>
+
+<p>Users see this hierarchy in the sidebar. Build from atoms upward.</p>
+
+<h2 id="running-storybook">Running Storybook</h2>
+
+<p><strong>Development</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run storybook <span class="nt">-w</span> sb-nucleus-react
+</code></pre></div></div>
+
+<p>Starts dev server (typically http://localhost:6006) with hot reload.</p>
+
+<p><strong>Production build</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build-storybook <span class="nt">-w</span> sb-nucleus-react
+</code></pre></div></div>
+
+<p>Outputs to <code class="language-plaintext highlighter-rouge">storybook-static/</code>—a static SPA deployable to any host.</p>
+
+<h2 id="common-gotcha-styles-not-loading">Common Gotcha: Styles Not Loading</h2>
+
+<p>If components render but look unstyled, you forgot to import the CSS in <code class="language-plaintext highlighter-rouge">preview.ts</code>. Web components don’t bundle their own styles when using global styles—consumers (including Storybook) must import <code class="language-plaintext highlighter-rouge">nucleus.css</code>.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 9 covers the Angular Storybook—Compodoc integration, module metadata, and Angular-specific story patterns.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

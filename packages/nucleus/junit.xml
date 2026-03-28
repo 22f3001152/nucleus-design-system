@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="9" failures="0" errors="0" time="4.725">
+  <testsuite name="format" errors="0" failures="0" skipped="0" timestamp="2023-12-20T16:36:37" time="2.635" tests="4">
+    <testcase classname="format returns empty string for no names defined" name="format returns empty string for no names defined" time="0.035">
+    </testcase>
+    <testcase classname="format formats just first names" name="format formats just first names" time="0.002">
+    </testcase>
+    <testcase classname="format formats first and last names" name="format formats first and last names" time="0.002">
+    </testcase>
+    <testcase classname="format formats first, middle and last names" name="format formats first, middle and last names" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="Nucleus Button Testing" errors="0" failures="0" skipped="0" timestamp="2023-12-20T16:36:37" time="2.738" tests="3">
+    <testcase classname="Nucleus Button Testing should render primary button component" name="Nucleus Button Testing should render primary button component" time="0.116">
+    </testcase>
+    <testcase classname="Nucleus Button Testing should render secondary button component" name="Nucleus Button Testing should render secondary button component" time="0.013">
+    </testcase>
+    <testcase classname="Nucleus Button Testing when nucleus button is disabled." name="Nucleus Button Testing when nucleus button is disabled." time="0.037">
+    </testcase>
+  </testsuite>
+  <testsuite name="Nucleus Toggle Component" errors="0" failures="0" skipped="0" timestamp="2023-12-20T16:36:37" time="3.033" tests="2">
+    <testcase classname="Nucleus Toggle Component should render toggle component" name="Nucleus Toggle Component should render toggle component" time="0.037">
+    </testcase>
+    <testcase classname="Nucleus Toggle Component should render toggle component" name="Nucleus Toggle Component should render toggle component" time="0.009">
+    </testcase>
+  </testsuite>
+</testsuites>

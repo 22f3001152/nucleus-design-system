@@ -1,0 +1,32 @@
+.btn {
+  font-family: var(--nucleus-font-family-sans);
+  padding: var(--nucleus-spacing-2) var(--nucleus-spacing-4);
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-primary {
+  background-color: var(--nucleus-color-primary);
+  color: var(--nucleus-color-white);
+  border-radius: var(--nucleus-radius-lg);
+}
+.btn-primary:hover,
+.btn-primary:focus { background-color: var(--nucleus-color-primary-hover); }
+.btn-secondary {
+  background-color: var(--nucleus-color-secondary);
+  color: var(--nucleus-color-gray-100);
+  border: 1px solid var(--nucleus-color-gray-300);
+  border-radius: var(--nucleus-radius-lg);
+}
+.btn-secondary:hover,
+.btn-secondary:focus { background-color: var(--nucleus-color-secondary-hover); }
+.btn-secondary:focus { outline: none; box-shadow: 0 0 0 4px rgba(126, 91, 239, 0.3); }
+.btn-xs { padding: var(--nucleus-spacing-2) var(--nucleus-spacing-3); font-size: var(--nucleus-font-size-xs); font-weight: 500; }
+.btn-sm { padding: var(--nucleus-spacing-2) var(--nucleus-spacing-3); font-size: var(--nucleus-font-size-sm); font-weight: 500; }
+.btn-md { padding: var(--nucleus-spacing-2-5) var(--nucleus-spacing-5); font-size: var(--nucleus-font-size-base); font-weight: 500; }
+.btn-lg { padding: var(--nucleus-spacing-3) var(--nucleus-spacing-5); font-size: var(--nucleus-font-size-base); font-weight: 500; }
+.btn-xl { padding: var(--nucleus-spacing-3-5) var(--nucleus-spacing-6); font-size: var(--nucleus-font-size-lg); font-weight: 500; }
+.rounded { border-radius: var(--nucleus-radius-full); }
+.disabled { opacity: 0.5; cursor: not-allowed; }

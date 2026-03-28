@@ -1,0 +1,7 @@
+@mixin focus-ring-var($border-color, $ring-color) {
+  &:focus {
+    border-color: var(#{$border-color});
+    box-shadow: 0 0 0 3px var(#{$ring-color});
+    outline: none;
+  }
+}

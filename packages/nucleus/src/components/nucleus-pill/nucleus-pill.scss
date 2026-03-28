@@ -1,0 +1,28 @@
+.nucleus-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nucleus-spacing-2);
+  border: 1px solid transparent;
+  padding: var(--nucleus-spacing-1-5) var(--nucleus-spacing-3);
+  font-size: var(--nucleus-font-size-sm);
+  font-weight: 500;
+}
+.nucleus-pill-primary { border-color: var(--nucleus-color-primary); background: var(--nucleus-color-primary); color: var(--nucleus-color-white); }
+.nucleus-pill-secondary { border-color: var(--nucleus-color-secondary); background: var(--nucleus-color-secondary); color: var(--nucleus-color-white); }
+.nucleus-pill-rounded { border-radius: var(--nucleus-radius-full); }
+.nucleus-pill-rectangle { border-radius: var(--nucleus-radius-md); }
+.nucleus-pill-label { line-height: 1; }
+.nucleus-pill-close {
+  display: inline-flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--nucleus-radius-full);
+  font-size: var(--nucleus-font-size-base);
+  line-height: 1;
+  color: var(--nucleus-color-white);
+  border: 0;
+  background: transparent;
+}
+.nucleus-pill-close:hover { background: rgba(255, 255, 255, 0.2); }

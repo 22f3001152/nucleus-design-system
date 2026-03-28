@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'Comic Neue';
+    src: url('../../nucleus/dist/nucleus/fonts/ComicNeue-Regular.woff2') format(woff2);
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1.5;
+}
+
+@import url('../../nucleus/dist/nucleus/nucleus.css');
+
+body {
+    font-family: 'Comic Neue', sans-serif;
+
+}

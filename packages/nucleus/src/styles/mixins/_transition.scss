@@ -1,0 +1,5 @@
+@mixin transition($properties: all, $duration: var(--nucleus-transition-fast), $easing: ease-in-out) {
+  transition-property: $properties;
+  transition-duration: $duration;
+  transition-timing-function: $easing;
+}

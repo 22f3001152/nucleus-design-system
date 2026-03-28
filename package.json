@@ -1,0 +1,49 @@
+{
+  "name": "design-system",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint:fix": "nx run-many -t lint:fix",
+    "lint": "nx run-many -t lint",
+    "format": "nx run-many -t format",
+    "build": "nx run-many -t build",
+    "dev-react": "nx run-many -t dev",
+    "storybook": "nx run-many -t storybook",
+    "build-and-serve-protected": "npm run -w sb-nucleus-react build-and-serve-protected",
+    "build-and-serve-protected:react": "npm run -w sb-nucleus-react build-and-serve-protected",
+    "build-and-serve-protected:angular": "npm run -w sb-nucleus-angular build-and-serve-protected",
+    "clean:storybook:generated": "rm -rf packages/sb-nucleus-react/storybook-static packages/sb-nucleus-angular/storybook-static packages/sb-nucleus-angular/documentation.json .deploy/storybook-bundle",
+    "build-storybook:react": "npm run -w sb-nucleus-react build-storybook",
+    "build-storybook:angular": "npm run -w sb-nucleus-angular build-storybook",
+    "build-storybook:bundle": "npm run clean:storybook:generated && npm run build-storybook:react && npm run build-storybook:angular",
+    "package-storybook": "npm run build-storybook:bundle && node scripts/prepare-storybook-blob-package.cjs",
+    "deploy:storybook:infra": "az deployment group create --resource-group ${AZURE_RESOURCE_GROUP:-nucleus-design-system} --template-file infra/storybook-static.bicep --parameters infra/params/storybook-${AZURE_ENV:-dev}.bicepparam",
+    "deploy:storybook:app": "npm run package-storybook && node scripts/deploy-storybook-to-blob.cjs",
+    "deploy:storybook": "npm run deploy:storybook:infra && npm run deploy:storybook:app",
+    "docs": "nx start nucleus-dev-docs",
+    "test": "nx test nucleus",
+    "docs:blog": "cd docs && /opt/homebrew/opt/ruby/bin/bundle exec jekyll serve",
+    "docs:blog:build": "cd docs && /opt/homebrew/opt/ruby/bin/bundle exec jekyll build",
+    "deploy:docs:infra": "az deployment group create --resource-group ${AZURE_RESOURCE_GROUP:-nucleus-design-system} --template-file infra/docs-static.bicep --parameters infra/params/docs-${AZURE_ENV:-dev}.bicepparam",
+    "deploy:docs:app": "npm run docs:blog:build && node scripts/deploy-docs-to-blob.cjs",
+    "deploy:docs": "npm run deploy:docs:infra && npm run deploy:docs:app"
+  },
+  "private": true,
+  "engineStrict": true,
+  "engines": {
+    "npm": ">=10.0.0 <11.0.0",
+    "node": ">=20.19.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^18.2.21",
+    "@biomejs/biome": "1.4.1",
+    "@nx/js": "17.1.3",
+    "@types/node": "^20.10.1",
+    "ng-packagr": "^18.2.1",
+    "nx": "17.1.3",
+    "typescript": "5.5.4"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

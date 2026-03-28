@@ -1,0 +1,12 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.4.1/schema.json",
+	"extends": [
+		"../../biome.json"
+	],
+	"files": {
+		"ignore": [
+			"lib/components/react-lib/react-component-lib/**/*.ts",
+			"lib/components/react-lib/react-component-lib/*.ts[x]"
+		]
+	}
+}

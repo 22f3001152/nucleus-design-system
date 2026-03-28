@@ -1,0 +1,14 @@
+.nucleus-progress { width: 100%; overflow: hidden; border-radius: var(--nucleus-radius-full); background: var(--nucleus-color-gray-200); }
+.nucleus-progress-xs { height: 0.25rem; }
+.nucleus-progress-sm { height: 0.375rem; }
+.nucleus-progress-md { height: 0.5rem; }
+.nucleus-progress-lg { height: 0.75rem; }
+.nucleus-progress-xl { height: 1rem; }
+.nucleus-progress-bar { height: 100%; transition: width var(--nucleus-transition-base) ease-out; }
+.nucleus-progress-primary { background: var(--nucleus-color-primary); }
+.nucleus-progress-secondary { background: var(--nucleus-color-secondary); }
+.nucleus-progress-indeterminate { width: 33%; animation: nucleus-progress-pulse 1.2s ease-in-out infinite alternate; }
+@keyframes nucleus-progress-pulse {
+  from { transform: translateX(0); }
+  to { transform: translateX(200%); }
+}

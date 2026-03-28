@@ -1,0 +1,1247 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-03-22T12:03:39+05:30</updated><id>http://localhost:4000/feed.xml</id><title type="html">Building a Design System from Scratch</title><subtitle>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</subtitle><entry><title type="html">Part 15: Project Structure Reference</title><link href="http://localhost:4000/reference/project-structure-reference/" rel="alternate" type="text/html" title="Part 15: Project Structure Reference" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/reference/project-structure-reference</id><content type="html" xml:base="http://localhost:4000/reference/project-structure-reference/"><![CDATA[<h2 id="repository-root">Repository Root</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus/
+├── packages/         # All npm workspace packages
+├── infra/            # Azure Bicep templates
+├── scripts/          # Build and deploy helpers
+├── docs/             # This Jekyll blog
+├── package.json      # Workspaces, root scripts
+├── nx.json           # Nx task defaults
+└── biome.json        # Linting and formatting
+</code></pre></div></div>
+
+<h2 id="package-dependency-graph">Package Dependency Graph</h2>
+
+<div class="mermaid">flowchart TB
+    N[nucleus]
+    R[nucleus-react]
+    A[nucleus-angular]
+    SR[sb-nucleus-react]
+    SA[sb-nucleus-angular]
+    N --> R
+    N --> A
+    R --> SR
+    A --> SA
+</div>
+
+<p>Build order flows from bottom to top of this graph: nucleus first, then wrappers, then Storybooks.</p>
+
+<h2 id="packagesnucleus--core-library">packages/nucleus — Core Library</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus/
+├── src/
+│   ├── components/       # Stencil components (nucleus-button, etc.)
+│   │   └── nucleus-button/
+│   │       ├── nucleus-button.tsx
+│   │       ├── nucleus-button.scss
+│   │       └── nucleus-button.spec.tsx
+│   ├── styles/
+│   │   ├── tokens/       # SCSS variables
+│   │   ├── mixins/
+│   │   ├── _custom-properties.scss
+│   │   └── styles.scss
+│   └── index.ts
+├── stencil.config.ts
+└── package.json
+</code></pre></div></div>
+
+<p><strong>Key files</strong>: <code class="language-plaintext highlighter-rouge">stencil.config.ts</code> (output targets, plugins), <code class="language-plaintext highlighter-rouge">styles/styles.scss</code> (global entry), <code class="language-plaintext highlighter-rouge">styles/tokens/</code> (design tokens).</p>
+
+<h2 id="packagesnucleus-react--react-wrapper">packages/nucleus-react — React Wrapper</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus-react/
+├── lib/components/react-lib/   # Auto-generated (do not edit)
+├── dist/
+└── package.json
+</code></pre></div></div>
+
+<p>Stencil regenerates <code class="language-plaintext highlighter-rouge">lib/</code> on every nucleus build. The package compiles TypeScript to <code class="language-plaintext highlighter-rouge">dist/</code>.</p>
+
+<h2 id="packagesnucleus-angular--angular-wrapper">packages/nucleus-angular — Angular Wrapper</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus-angular/
+├── projects/nucleus-ng-component-library/
+│   └── src/lib/
+│       ├── proxies.ts      # Auto-generated directives
+│       └── ...
+├── dist/
+└── angular.json
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">proxies.ts</code> is auto-generated. Build with <code class="language-plaintext highlighter-rouge">ng-packagr</code> to produce APF output.</p>
+
+<h2 id="packagessb-nucleus-react--sb-nucleus-angular">packages/sb-nucleus-react &amp; sb-nucleus-angular</h2>
+
+<p>Storybook packages. Critical: <code class="language-plaintext highlighter-rouge">preview.ts</code> must import <code class="language-plaintext highlighter-rouge">nucleus.css</code> and call <code class="language-plaintext highlighter-rouge">defineCustomElements()</code>. Angular Storybook also needs Compodoc and <code class="language-plaintext highlighter-rouge">moduleMetadata</code>.</p>
+
+<h2 id="scripts">scripts/</h2>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">prepare-storybook-webapp-package.cjs</code></strong>: Combines React + Angular Storybook builds, adds auth server, creates zip.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">serve-storybook-bundle-auth.cjs</code></strong>: Express server with basic auth for the bundled Storybook.</li>
+</ul>
+
+<h2 id="infra">infra/</h2>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">main.bicep</code></strong>: Root template. Parameters: location, webAppName, sbUser, sbPass.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">modules/</code></strong>: app-service-plan, web-app, app-insights.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">params/</code></strong>: dev.bicepparam, prod.bicepparam for environment-specific values.</li>
+</ul>
+
+<h2 id="key-commands">Key Commands</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run build</code></td>
+      <td>Build all packages (Nx order)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run lint</code></td>
+      <td>Lint all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run format</code></td>
+      <td>Format all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run storybook</code></td>
+      <td>Start both Storybooks</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run build-storybook:bundle</code></td>
+      <td>Build combined Storybook for deploy</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">npm run deploy:storybook</code></td>
+      <td>Full infra + app deploy</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="file-naming-conventions">File Naming Conventions</h2>
+
+<ul>
+  <li>Components: <code class="language-plaintext highlighter-rouge">nucleus-{name}.tsx</code></li>
+  <li>Styles: <code class="language-plaintext highlighter-rouge">nucleus-{name}.scss</code></li>
+  <li>Tests: <code class="language-plaintext highlighter-rouge">nucleus-{name}.spec.tsx</code></li>
+  <li>Stories: <code class="language-plaintext highlighter-rouge">{Name}.stories.tsx</code> or <code class="language-plaintext highlighter-rouge">.ts</code></li>
+</ul>
+
+<h2 id="gitignore">Gitignore</h2>
+
+<p><code class="language-plaintext highlighter-rouge">node_modules/</code>, <code class="language-plaintext highlighter-rouge">dist/</code>, <code class="language-plaintext highlighter-rouge">.nx/cache/</code>, <code class="language-plaintext highlighter-rouge">.deploy/</code>, <code class="language-plaintext highlighter-rouge">storybook-static/</code> are ignored. Never commit build artifacts.</p>
+
+<hr />
+
+<p>You now have a complete reference for navigating Nucleus. Return to earlier parts for deep dives on specific topics. The structure should feel intuitive: core → wrappers → documentation, with shared tooling and infra at the root.</p>]]></content><author><name></name></author><category term="reference" /><category term="reference" /><category term="architecture" /><summary type="html"><![CDATA[Complete reference guide to the Nucleus monorepo structure—what every directory and file does and how they interconnect.]]></summary></entry><entry><title type="html">Part 2: Project Setup and Monorepo Architecture</title><link href="http://localhost:4000/project-setup/project-setup-and-monorepo/" rel="alternate" type="text/html" title="Part 2: Project Setup and Monorepo Architecture" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/project-setup/project-setup-and-monorepo</id><content type="html" xml:base="http://localhost:4000/project-setup/project-setup-and-monorepo/"><![CDATA[<h2 id="why-monorepos-for-design-systems">Why Monorepos for Design Systems?</h2>
+
+<p>A <strong>monorepo</strong> (short for monolithic repository) keeps all related packages in a single Git repository with shared tooling and versioning. For design systems, this is essential. When you fix a bug in <code class="language-plaintext highlighter-rouge">nucleus-button</code>, you want the React wrapper, Angular wrapper, and both Storybooks to update in the <strong>same commit</strong>. No version mismatches, no “which version of the core does the React package use?”—everything stays in sync.</p>
+
+<p>Companies like Google, Meta, and Microsoft use monorepos to manage thousands of projects. We use the same approach at a smaller scale for Nucleus.</p>
+
+<h2 id="npm-workspaces-the-foundation">NPM Workspaces: The Foundation</h2>
+
+<p>NPM workspaces (built into npm 7+) provide native monorepo support. In your root <code class="language-plaintext highlighter-rouge">package.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"workspaces"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"packages/*"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This tells npm that every folder under <code class="language-plaintext highlighter-rouge">packages/</code> is a workspace package. Benefits you’ll notice immediately:</p>
+
+<ul>
+  <li><strong>Hoisted dependencies</strong>: Shared packages like <code class="language-plaintext highlighter-rouge">typescript</code> are installed once at the root <code class="language-plaintext highlighter-rouge">node_modules/</code></li>
+  <li><strong>Symlinked packages</strong>: When <code class="language-plaintext highlighter-rouge">nucleus-react</code> depends on <code class="language-plaintext highlighter-rouge">nucleus</code>, npm creates a symlink so you’re always testing against your local source</li>
+  <li><strong>Workspace commands</strong>: Run scripts across all packages with <code class="language-plaintext highlighter-rouge">npm run build -w nucleus</code> or <code class="language-plaintext highlighter-rouge">npm run build --workspaces</code></li>
+</ul>
+
+<h2 id="the-nucleus-package-structure">The Nucleus Package Structure</h2>
+
+<p>Each package has a clear responsibility. The dependency flow is one-way: core → wrappers → Storybooks.</p>
+
+<div class="mermaid">flowchart LR
+    N[nucleus]
+    R[nucleus-react]
+    A[nucleus-angular]
+    SR[sb-nucleus-react]
+    SA[sb-nucleus-angular]
+    N --> R
+    N --> A
+    R --> SR
+    A --> SA
+</div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">nucleus/</code></strong>: Stencil component source. Builds to <code class="language-plaintext highlighter-rouge">dist/</code> with compiled web components and CSS.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">nucleus-react/</code></strong>: Auto-generated React proxy components. Never edit these files—Stencil regenerates them.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">nucleus-angular/</code></strong>: Auto-generated Angular directives. Same rule: auto-generated only.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">sb-nucleus-react/</code></strong> and <strong><code class="language-plaintext highlighter-rouge">sb-nucleus-angular/</code></strong>: Storybook apps for documentation. They consume the wrapper packages.</li>
+</ul>
+
+<p>The key insight: during development, workspace symlinks mean you always test against your latest code. No need to <code class="language-plaintext highlighter-rouge">npm publish</code> and reinstall to see changes.</p>
+
+<h2 id="nx-intelligent-build-orchestration">Nx: Intelligent Build Orchestration</h2>
+
+<p>npm workspaces handle <strong>linking</strong>; Nx handles <strong>execution order</strong>. Without Nx, you’d have to remember to build <code class="language-plaintext highlighter-rouge">nucleus</code> before <code class="language-plaintext highlighter-rouge">nucleus-react</code>, and <code class="language-plaintext highlighter-rouge">nucleus-react</code> before <code class="language-plaintext highlighter-rouge">sb-nucleus-react</code>. Nx reads your <code class="language-plaintext highlighter-rouge">package.json</code> dependencies and builds in the correct order automatically.</p>
+
+<p>Configure <code class="language-plaintext highlighter-rouge">nx.json</code> with target defaults:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"targetDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"build"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"dependsOn"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"^format"</span><span class="p">,</span><span class="w"> </span><span class="s2">"^lint"</span><span class="p">,</span><span class="w"> </span><span class="s2">"^build"</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">^</code> prefix means “run this target on all dependencies first.” So when you run <code class="language-plaintext highlighter-rouge">npm run build</code>, Nx builds <code class="language-plaintext highlighter-rouge">nucleus</code>, then <code class="language-plaintext highlighter-rouge">nucleus-react</code> and <code class="language-plaintext highlighter-rouge">nucleus-angular</code>, then the Storybooks—in parallel where possible.</p>
+
+<h2 id="caching-why-your-second-build-is-instant">Caching: Why Your Second Build Is Instant</h2>
+
+<p>Nx hashes task inputs (source files, config, dependencies) to create cache keys. When you run a build, Nx checks: “Have I run this exact task before?” If the hash matches a previous run, it restores the output from cache and skips execution. Your second <code class="language-plaintext highlighter-rouge">npm run build</code> after no changes can complete in seconds instead of minutes.</p>
+
+<div class="mermaid">flowchart LR
+    A[Run build] --> B{Hash exists?}
+    B -->|Yes| C[Restore from cache]
+    B -->|No| D[Execute task]
+    D --> E[Cache output]
+</div>
+
+<p>On CI, this compounds: if only <code class="language-plaintext highlighter-rouge">nucleus-button</code> changed, only affected packages rebuild. Unchanged packages restore from cache.</p>
+
+<h2 id="package-dependencies-in-practice">Package Dependencies in Practice</h2>
+
+<p>Each package declares dependencies in its <code class="language-plaintext highlighter-rouge">package.json</code>. The React wrapper, for example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"nucleus"</span><span class="p">:</span><span class="w"> </span><span class="s2">"workspace:*"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"react"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^18.0.0"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">workspace:*</code> protocol tells npm to use the local workspace package during development. When you publish to npm, build tools replace this with the actual version number.</p>
+
+<h2 id="folder-structure-walkthrough">Folder Structure Walkthrough</h2>
+
+<p>From the repository root:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nucleus/
+├── packages/
+│   ├── nucleus/              # Core Stencil components
+│   ├── nucleus-react/        # React wrappers (auto-generated)
+│   ├── nucleus-angular/      # Angular wrappers (auto-generated)
+│   ├── sb-nucleus-react/     # React Storybook
+│   ├── sb-nucleus-angular/   # Angular Storybook
+│   └── nucleus-dev-docs/     # Docusaurus dev docs
+├── infra/                    # Azure Bicep templates
+├── scripts/                  # Build/deploy helpers
+└── docs/                     # This Jekyll blog
+</code></pre></div></div>
+
+<p>The build graph ensures artifacts are always in sync—you can’t accidentally deploy Storybook pointing at outdated wrapper code.</p>
+
+<h2 id="verification-steps">Verification Steps</h2>
+
+<p>After cloning the repo:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install
+</span>npm run build
+</code></pre></div></div>
+
+<p>If both succeed, your monorepo is wired correctly. Run <code class="language-plaintext highlighter-rouge">npm run storybook</code> to start both Storybooks and see your components in action.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>In Part 3, we’ll dive into Stencil.js—how components are authored, the decorator model, lifecycle hooks, and output targets in detail.</p>]]></content><author><name></name></author><category term="project-setup" /><category term="monorepo" /><category term="nx" /><category term="workspaces" /><summary type="html"><![CDATA[Setting up a monorepo with npm workspaces and Nx orchestration for scalable component development.]]></summary></entry><entry><title type="html">Part 3: Stencil.js Deep Dive</title><link href="http://localhost:4000/stencil/stencil-js-deep-dive/" rel="alternate" type="text/html" title="Part 3: Stencil.js Deep Dive" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/stencil/stencil-js-deep-dive</id><content type="html" xml:base="http://localhost:4000/stencil/stencil-js-deep-dive/"><![CDATA[<h2 id="what-is-stenciljs">What is Stencil.js?</h2>
+
+<p>Stencil is a <strong>compiler</strong>, not a framework. It transforms TypeScript and JSX into vanilla JavaScript web components that run in browsers with zero runtime dependencies. There’s no “Stencil runtime” to ship—it compiles away. Think of it as a specialized build tool for web components, similar to how Babel transforms modern JavaScript.</p>
+
+<p>Created by the Ionic team, Stencil powers Ionic Framework and is used by companies like Apple, Amazon, and Microsoft for design systems. The key differentiator: you write components that feel like React (JSX, TypeScript, decorators), and Stencil outputs standards-compliant custom elements.</p>
+
+<h2 id="stencil-config-walkthrough">Stencil Config Walkthrough</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">packages/nucleus/stencil.config.ts</code> file controls everything:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">config</span><span class="p">:</span> <span class="nx">Config</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">namespace</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">taskQueue</span><span class="p">:</span> <span class="dl">'</span><span class="s1">async</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">globalStyle</span><span class="p">:</span> <span class="dl">'</span><span class="s1">./src/styles/styles.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">outputTargets</span><span class="p">:</span> <span class="p">[</span><span class="cm">/* ... */</span><span class="p">],</span>
+  <span class="na">plugins</span><span class="p">:</span> <span class="p">[</span><span class="nf">sass</span><span class="p">()]</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">namespace</code></strong>: Affects bundle filenames (e.g., <code class="language-plaintext highlighter-rouge">nucleus.js</code>). Prevents collisions if multiple Stencil libraries load on the same page.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">taskQueue: 'async'</code></strong>: How Stencil batches DOM updates for performance.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">globalStyle</code></strong>: Entry point for design tokens and global CSS. Compiled once into <code class="language-plaintext highlighter-rouge">dist/nucleus/nucleus.css</code>.</li>
+</ul>
+
+<h2 id="output-targets-what-stencil-produces">Output Targets: What Stencil Produces</h2>
+
+<div class="mermaid">flowchart TB
+    subgraph Source["Source"]
+        S[Stencil TSX]
+    end
+    subgraph Outputs["Output Targets"]
+        D[dist - Web Components]
+        RE[React Wrappers]
+        AN[Angular Directives]
+    end
+    S --> D
+    S --> RE
+    S --> AN
+</div>
+
+<p><strong><code class="language-plaintext highlighter-rouge">dist</code> target</strong>: Generates lazy-loaded ES modules, type definitions, and the global stylesheet. This is what consumers import.</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">reactOutputTarget</code></strong>: Auto-generates React components in <code class="language-plaintext highlighter-rouge">nucleus-react</code>. Maps Stencil events to React props (e.g., <code class="language-plaintext highlighter-rouge">nucleusChange</code> → <code class="language-plaintext highlighter-rouge">onNucleusChange</code>).</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">angularOutputTarget</code></strong>: Auto-generates Angular directives with <code class="language-plaintext highlighter-rouge">@ProxyCmp</code>. Integrates with NgModule and change detection.</p>
+
+<h2 id="the-decorator-model-explained">The Decorator Model Explained</h2>
+
+<p>Stencil uses TypeScript decorators to add behavior. If you’ve used Angular or class-based React, these will feel familiar.</p>
+
+<h3 id="component">@Component</h3>
+
+<p>Defines the custom element:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">tag</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">styleUrl</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">shadow</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">tag</code></strong>: The HTML element name. Must contain a hyphen per the web components spec.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">shadow: false</code></strong>: We use Light DOM so global design tokens apply. Shadow DOM would encapsulate styles.</li>
+</ul>
+
+<h3 id="prop--public-properties">@Prop — Public Properties</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="kd">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">;</span>
+<span class="p">@</span><span class="nd">Prop</span><span class="p">({</span> <span class="na">reflect</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span> <span class="nx">disabled</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Props are reactive: when a parent updates the attribute, the component re-renders. <code class="language-plaintext highlighter-rouge">reflect: true</code> syncs the value back to the HTML attribute, useful for CSS selectors like <code class="language-plaintext highlighter-rouge">button[disabled]</code>.</p>
+
+<h3 id="state--internal-state">@State — Internal State</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">State</span><span class="p">()</span> <span class="nx">isOpen</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">@State</code> for internal UI state (dropdown open/closed, etc.). Not exposed to consumers.</p>
+
+<h3 id="event--custom-events">@Event — Custom Events</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Event</span><span class="p">()</span> <span class="nx">nucleusChange</span><span class="p">:</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">string</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="c1">// In handler: this.nucleusChange.emit(newValue);</span>
+</code></pre></div></div>
+
+<p>Consumers listen with <code class="language-plaintext highlighter-rouge">onNucleusChange</code> (React) or <code class="language-plaintext highlighter-rouge">(nucleusChange)="handler($event)"</code> (Angular).</p>
+
+<h3 id="watch--react-to-changes">@Watch — React to Changes</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Watch</span><span class="p">(</span><span class="dl">'</span><span class="s1">value</span><span class="dl">'</span><span class="p">)</span>
+<span class="nf">valueChanged</span><span class="p">(</span><span class="nx">newVal</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">oldVal</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nf">validateInput</span><span class="p">(</span><span class="nx">newVal</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Runs when a prop or state changes. Useful for validation, syncing derived state, or side effects.</p>
+
+<h2 id="component-lifecycle-simplified">Component Lifecycle (Simplified)</h2>
+
+<div class="mermaid">flowchart TD
+    A[componentWillLoad] --> B[First render]
+    B --> C[componentDidLoad]
+    C --> D[Component ready]
+    D -->|Props change| E[render]
+    E --> D
+</div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">componentWillLoad</code></strong>: Once, before first render. Fetch data, initialize state.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">componentDidLoad</code></strong>: Once, after first render. Access DOM, attach listeners.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">render</code></strong>: Called whenever props or state change. Return JSX.</li>
+</ul>
+
+<h2 id="shadow-dom-vs-light-dom">Shadow DOM vs Light DOM</h2>
+
+<p><strong>Shadow DOM</strong> (<code class="language-plaintext highlighter-rouge">shadow: true</code>): Fully encapsulated. Page CSS can’t leak in. Better for third-party widgets.</p>
+
+<p><strong>Light DOM</strong> (<code class="language-plaintext highlighter-rouge">shadow: false</code>): Global styles apply. Easier theming with CSS custom properties. Nucleus uses this so design tokens flow through without piercing shadow boundaries.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 4 walks through building <code class="language-plaintext highlighter-rouge">nucleus-button</code> from scratch—props, styles, tests, and verification.</p>]]></content><author><name></name></author><category term="stencil" /><category term="stencil" /><category term="web-components" /><summary type="html"><![CDATA[Understanding Stencil's compiler, decorators, lifecycle, and output targets for building production web components.]]></summary></entry><entry><title type="html">Part 4: Building Your First Component</title><link href="http://localhost:4000/components/building-your-first-component/" rel="alternate" type="text/html" title="Part 4: Building Your First Component" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/components/building-your-first-component</id><content type="html" xml:base="http://localhost:4000/components/building-your-first-component/"><![CDATA[<h2 id="component-driven-development">Component-Driven Development</h2>
+
+<p>Let’s build <code class="language-plaintext highlighter-rouge">nucleus-button</code>—the foundational component of any design system. A well-designed button demonstrates all core concepts: props for variants, event handling, accessibility, and styling with design tokens. If you’re new to component development, think of this as building a reusable Lego block that other developers will use everywhere.</p>
+
+<h2 id="anatomy-of-a-stencil-component">Anatomy of a Stencil Component</h2>
+
+<p>Every Stencil component needs:</p>
+
+<ol>
+  <li><strong>A TypeScript class</strong> with the <code class="language-plaintext highlighter-rouge">@Component</code> decorator</li>
+  <li><strong>A <code class="language-plaintext highlighter-rouge">render()</code> method</strong> that returns JSX</li>
+  <li><strong>A stylesheet</strong> (<code class="language-plaintext highlighter-rouge">.scss</code> for Nucleus)</li>
+  <li><strong>Unit tests</strong> (<code class="language-plaintext highlighter-rouge">.spec.tsx</code>)</li>
+</ol>
+
+<p>Optional: E2E tests in <code class="language-plaintext highlighter-rouge">test/</code> for browser-level validation.</p>
+
+<h2 id="step-1-generate-the-component-scaffold">Step 1: Generate the Component Scaffold</h2>
+
+<p>From the <code class="language-plaintext highlighter-rouge">packages/nucleus</code> directory:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx stencil generate
+<span class="c"># Choose: component</span>
+<span class="c"># Name: nucleus-button</span>
+</code></pre></div></div>
+
+<p>This creates the folder structure, base files, and a spec file. Don’t worry about getting everything perfect—you’ll replace most of the boilerplate.</p>
+
+<h2 id="step-2-define-props-and-the-public-api">Step 2: Define Props and the Public API</h2>
+
+<p>Props are the component’s contract with the outside world. Keep the API minimal and semantic.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">tag</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">styleUrl</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">shadow</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">NucleusButton</span> <span class="p">{</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="kd">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">size</span><span class="p">:</span> <span class="dl">'</span><span class="s1">xs</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">sm</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">lg</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">xl</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">rounded</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">({</span> <span class="na">reflect</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span> <span class="nx">disabled</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+
+  <span class="nf">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">(</span>
+      <span class="o">&lt;</span><span class="nx">button</span>
+        <span class="kd">type</span><span class="o">=</span><span class="dl">"</span><span class="s2">button</span><span class="dl">"</span>
+        <span class="kd">class</span><span class="o">=</span><span class="p">{</span><span class="nf">classNames</span><span class="p">(</span><span class="dl">'</span><span class="s1">btn</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+          <span class="p">[</span><span class="s2">`btn-</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="kd">type</span><span class="p">}</span><span class="s2">`</span><span class="p">]:</span> <span class="kc">true</span><span class="p">,</span>
+          <span class="na">rounded</span><span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">rounded</span><span class="p">,</span>
+          <span class="na">disabled</span><span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">disabled</span><span class="p">,</span>
+          <span class="p">[</span><span class="s2">`btn-</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">size</span><span class="p">}</span><span class="s2">`</span><span class="p">]:</span> <span class="kc">true</span>
+        <span class="p">})}</span>
+        <span class="nx">disabled</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">disabled</span><span class="p">}</span>
+      <span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">slot</span> <span class="o">/&gt;</span>
+      <span class="o">&lt;</span><span class="sr">/button</span><span class="err">&gt;
+</span>    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Design decisions</strong>:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">type</code></strong>: Primary vs secondary conveys intent. Designers understand “primary” means the main action.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">size</code></strong>: Aligns with typography scale (xs through xl).</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">&lt;slot /&gt;</code></strong>: Projects child content—text, icons—from the consumer. Essential for flexibility.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">classNames</code></strong>: The <code class="language-plaintext highlighter-rouge">classnames</code> library composes CSS classes from prop values cleanly.</li>
+</ul>
+
+<h2 id="step-3-add-scss-styles-with-tokens">Step 3: Add SCSS Styles with Tokens</h2>
+
+<p>Never hardcode colors or spacing. Use design tokens:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@use</span> <span class="s1">'../../styles/tokens'</span> <span class="nt">as</span> <span class="nt">tokens</span><span class="p">;</span>
+
+<span class="nc">.btn</span> <span class="p">{</span>
+  <span class="nl">font-family</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-font-family-sans</span><span class="p">);</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-2</span><span class="p">)</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-4</span><span class="p">);</span>
+  <span class="nl">border-radius</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-radius-md</span><span class="p">);</span>
+  <span class="nl">cursor</span><span class="p">:</span> <span class="nb">pointer</span><span class="p">;</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-primary</span> <span class="p">{</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-white</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-secondary</span> <span class="p">{</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="nb">transparent</span><span class="p">;</span>
+    <span class="nl">border</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">solid</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-border-color</span><span class="p">);</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-disabled</span> <span class="p">{</span>
+    <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="mi">.6</span><span class="p">;</span>
+    <span class="nl">cursor</span><span class="p">:</span> <span class="ow">not</span><span class="o">-</span><span class="n">allowed</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">var(--nucleus-*)</code> pattern means consumers can override these at runtime for theming—without recompiling your library.</p>
+
+<h2 id="step-4-write-unit-tests">Step 4: Write Unit Tests</h2>
+
+<p>Use Stencil’s <code class="language-plaintext highlighter-rouge">newSpecPage()</code> for fast, isolated tests:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">newSpecPage</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@stencil/core/testing</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">NucleusButton</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./nucleus-button</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nf">it</span><span class="p">(</span><span class="dl">'</span><span class="s1">renders with default props</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">page</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">newSpecPage</span><span class="p">({</span>
+      <span class="na">components</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+      <span class="na">html</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button&gt;Click me&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+    <span class="p">});</span>
+    <span class="kd">const</span> <span class="nx">button</span> <span class="o">=</span> <span class="nx">page</span><span class="p">.</span><span class="nx">root</span><span class="p">?.</span><span class="nf">querySelector</span><span class="p">(</span><span class="dl">'</span><span class="s1">button</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nx">button</span><span class="p">?.</span><span class="nx">classList</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="dl">'</span><span class="s1">btn-primary</span><span class="dl">'</span><span class="p">)).</span><span class="nf">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">});</span>
+
+  <span class="nf">it</span><span class="p">(</span><span class="dl">'</span><span class="s1">reflects disabled to attribute</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">page</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">newSpecPage</span><span class="p">({</span>
+      <span class="na">components</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+      <span class="na">html</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button disabled&gt;Click&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+    <span class="p">});</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">root</span><span class="p">?.</span><span class="nf">hasAttribute</span><span class="p">(</span><span class="dl">'</span><span class="s1">disabled</span><span class="dl">'</span><span class="p">)).</span><span class="nf">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Run tests with <code class="language-plaintext highlighter-rouge">npm run test -w nucleus</code>. Tests should be fast—no real browser required for most spec tests.</p>
+
+<h2 id="step-5-build-and-verify">Step 5: Build and Verify</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build <span class="nt">-w</span> nucleus
+</code></pre></div></div>
+
+<p>Inspect <code class="language-plaintext highlighter-rouge">packages/nucleus/dist/</code>. You’ll find compiled JavaScript, type definitions, and <code class="language-plaintext highlighter-rouge">nucleus.css</code>. The build also regenerates React and Angular wrappers—so <code class="language-plaintext highlighter-rouge">nucleus-react</code> and <code class="language-plaintext highlighter-rouge">nucleus-angular</code> now expose <code class="language-plaintext highlighter-rouge">NucleusButton</code>.</p>
+
+<div class="mermaid">flowchart LR
+    A[TSX + SCSS] --> B[Stencil Build]
+    B --> C[dist/]
+    B --> D[React Wrapper]
+    B --> E[Angular Wrapper]
+</div>
+
+<h2 id="best-practices-for-junior-developers">Best Practices for Junior Developers</h2>
+
+<ol>
+  <li><strong>Start with props</strong>: Define the minimal API. Fewer props = simpler component.</li>
+  <li><strong>Use semantic names</strong>: <code class="language-plaintext highlighter-rouge">type="primary"</code> beats <code class="language-plaintext highlighter-rouge">variant="blue"</code>.</li>
+  <li><strong>Provide defaults</strong>: Every prop should have a sensible default.</li>
+  <li><strong>Reflect boolean props</strong>: Enables CSS <code class="language-plaintext highlighter-rouge">[disabled]</code> selectors.</li>
+  <li><strong>Test as you go</strong>: Don’t defer tests until the end.</li>
+</ol>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>In Part 5, we’ll establish the SCSS design token system—colors, spacing, typography, borders—that powers consistent styling across all components.</p>]]></content><author><name></name></author><category term="components" /><category term="stencil" /><category term="button" /><summary type="html"><![CDATA[Step-by-step guide to creating nucleus-button with props, variants, and unit tests.]]></summary></entry><entry><title type="html">Part 5: SCSS and Design Tokens Setup</title><link href="http://localhost:4000/styling/scss-and-design-tokens/" rel="alternate" type="text/html" title="Part 5: SCSS and Design Tokens Setup" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/styling/scss-and-design-tokens</id><content type="html" xml:base="http://localhost:4000/styling/scss-and-design-tokens/"><![CDATA[<h2 id="what-are-design-tokens">What Are Design Tokens?</h2>
+
+<p>Design tokens are <strong>atomic design decisions stored as code</strong>. Instead of hardcoding <code class="language-plaintext highlighter-rouge">#3b82f6</code> in every button and input, you define <code class="language-plaintext highlighter-rouge">$nucleus-color-primary</code> once. When the brand color changes, update one variable—all components update automatically. Tokens cover colors, spacing, typography, shadows, borders, and more.</p>
+
+<p>Major design tools (Figma, Sketch, Adobe XD) now export tokens, enabling true design-to-code workflows. Nucleus uses SCSS variables and CSS custom properties to achieve this.</p>
+
+<h2 id="the-three-tier-token-architecture">The Three-Tier Token Architecture</h2>
+
+<p>Nucleus uses a layered approach. Each tier has a specific role:</p>
+
+<div class="mermaid">flowchart TD
+    T1[Tier 1: SCSS Variables]
+    T2[Tier 2: CSS Custom Properties]
+    T3[Tier 3: Component Styles]
+    T1 -->|compile-time| T2
+    T2 -->|runtime| T3
+</div>
+
+<h3 id="tier-1-scss-variables-with-default">Tier 1: SCSS Variables with !default</h3>
+
+<p>Located in <code class="language-plaintext highlighter-rouge">packages/nucleus/src/styles/tokens/</code>:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// tokens/_colors.scss</span>
+<span class="nv">$nucleus-color-primary</span><span class="p">:</span> <span class="mh">#1fb6ff</span> <span class="o">!</span><span class="nb">default</span><span class="p">;</span>
+<span class="nv">$nucleus-color-primary-hover</span><span class="p">:</span> <span class="mh">#2b6cb0</span> <span class="o">!</span><span class="nb">default</span><span class="p">;</span>
+<span class="nv">$nucleus-color-gray-100</span><span class="p">:</span> <span class="mh">#f3f4f6</span> <span class="o">!</span><span class="nb">default</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">!default</code> flag means “use this value unless overridden before import.” This lets consumers customize themes by defining variables before importing your styles. Token files are organized by category: <code class="language-plaintext highlighter-rouge">_colors.scss</code>, <code class="language-plaintext highlighter-rouge">_spacing.scss</code>, <code class="language-plaintext highlighter-rouge">_typography.scss</code>, <code class="language-plaintext highlighter-rouge">_borders.scss</code>, <code class="language-plaintext highlighter-rouge">_shadows.scss</code>, <code class="language-plaintext highlighter-rouge">_transitions.scss</code>, <code class="language-plaintext highlighter-rouge">_z-index.scss</code>.</p>
+
+<h3 id="tier-2-css-custom-properties">Tier 2: CSS Custom Properties</h3>
+
+<p>The file <code class="language-plaintext highlighter-rouge">_custom-properties.scss</code> maps SCSS variables to CSS custom properties on <code class="language-plaintext highlighter-rouge">:root</code>:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">:root</span> <span class="p">{</span>
+  <span class="na">--nucleus-color-primary</span><span class="p">:</span> <span class="si">#{</span><span class="nv">$nucleus-color-primary</span><span class="si">}</span><span class="p">;</span>
+  <span class="na">--nucleus-color-primary-hover</span><span class="p">:</span> <span class="si">#{</span><span class="nv">$nucleus-color-primary-hover</span><span class="si">}</span><span class="p">;</span>
+  <span class="na">--nucleus-spacing-2</span><span class="p">:</span> <span class="si">#{</span><span class="nv">$nucleus-spacing-2</span><span class="si">}</span><span class="p">;</span>
+  <span class="na">--nucleus-radius-md</span><span class="p">:</span> <span class="si">#{</span><span class="nv">$nucleus-radius-md</span><span class="si">}</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Why this layer? <strong>Runtime theming</strong>. Unlike SCSS variables (compile-time only), CSS custom properties can be changed via JavaScript without recompiling:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nf">setProperty</span><span class="p">(</span><span class="dl">'</span><span class="s1">--nucleus-color-primary</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">#e63946</span><span class="dl">'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>The entire UI rebrands instantly. Essential for dark mode, A/B theming, or white-label products.</p>
+
+<h3 id="tier-3-component-consumption">Tier 3: Component Consumption</h3>
+
+<p>Components use <code class="language-plaintext highlighter-rouge">var()</code> to reference tokens:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.btn-primary</span> <span class="p">{</span>
+  <span class="nl">background-color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-2</span><span class="p">)</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-4</span><span class="p">);</span>
+  <span class="nl">border-radius</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-radius-md</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="token-naming-convention">Token Naming Convention</h2>
+
+<p>Consistency helps developers find tokens without constant documentation lookup:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Pattern</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Colors</td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-color-{name}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-color-primary</code></td>
+    </tr>
+    <tr>
+      <td>Spacing</td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-spacing-{size}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-spacing-4</code></td>
+    </tr>
+    <tr>
+      <td>Typography</td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-font-{property}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-font-size-sm</code></td>
+    </tr>
+    <tr>
+      <td>Borders</td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-radius-{size}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--nucleus-radius-lg</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="reusable-scss-mixins">Reusable SCSS Mixins</h2>
+
+<p>Mixins encode common patterns so you apply them consistently:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// mixins/_focus.scss</span>
+<span class="k">@mixin</span> <span class="nf">focus-ring</span> <span class="p">{</span>
+  <span class="nl">outline</span><span class="p">:</span> <span class="m">2px</span> <span class="nb">solid</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+  <span class="nl">outline-offset</span><span class="p">:</span> <span class="m">2px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// mixins/_disabled.scss</span>
+<span class="k">@mixin</span> <span class="nf">disabled-state</span> <span class="p">{</span>
+  <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="mi">.6</span><span class="p">;</span>
+  <span class="nl">cursor</span><span class="p">:</span> <span class="ow">not</span><span class="o">-</span><span class="n">allowed</span><span class="p">;</span>
+  <span class="nl">pointer-events</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Use in components: <code class="language-plaintext highlighter-rouge">@include focus-ring;</code> and <code class="language-plaintext highlighter-rouge">@include disabled-state;</code>. Accessibility best practices stay centralized.</p>
+
+<h2 id="global-stylesheet-entry">Global Stylesheet Entry</h2>
+
+<p><code class="language-plaintext highlighter-rouge">styles.scss</code> imports tokens, custom properties, and mixins. Stencil’s <code class="language-plaintext highlighter-rouge">globalStyle</code> config points here—at build time it compiles to <code class="language-plaintext highlighter-rouge">dist/nucleus/nucleus.css</code>. Consumers import it once:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="dl">'</span><span class="s1">nucleus/dist/nucleus/nucleus.css</span><span class="dl">'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>All tokens are now available globally. Components that use <code class="language-plaintext highlighter-rouge">var(--nucleus-*)</code> will resolve correctly.</p>
+
+<h2 id="theming-dark-mode-example">Theming: Dark Mode Example</h2>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span><span class="nt">data-theme</span><span class="o">=</span><span class="s2">"dark"</span><span class="o">]</span> <span class="p">{</span>
+  <span class="na">--nucleus-color-background</span><span class="p">:</span> <span class="mh">#1f2937</span><span class="p">;</span>
+  <span class="na">--nucleus-color-text</span><span class="p">:</span> <span class="mh">#f9fafb</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Toggle with <code class="language-plaintext highlighter-rouge">document.documentElement.setAttribute('data-theme', 'dark')</code>. Components adapt automatically because they reference the tokens, not hardcoded values.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 6 explains Stencil’s React output target—how the auto-generated React wrapper works and how consumers use it in React applications.</p>]]></content><author><name></name></author><category term="styling" /><category term="scss" /><category term="tokens" /><summary type="html"><![CDATA[Building a scalable three-tier token system: SCSS variables, CSS custom properties, and component consumption.]]></summary></entry><entry><title type="html">Part 6: React Output Target and Wrapper</title><link href="http://localhost:4000/react/react-output-target/" rel="alternate" type="text/html" title="Part 6: React Output Target and Wrapper" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/react/react-output-target</id><content type="html" xml:base="http://localhost:4000/react/react-output-target/"><![CDATA[<h2 id="the-web-component-integration-challenge">The Web Component Integration Challenge</h2>
+
+<p>Web components work in React—you can render <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> and it will display. But the developer experience is awkward without wrappers. You’d need to manually add event listeners, and TypeScript wouldn’t know the props. React’s synthetic event system doesn’t automatically map to custom element events. The React output target solves this by generating React components that feel native.</p>
+
+<div class="mermaid">flowchart LR
+    A[Stencil Component] --> B[reactOutputTarget]
+    B --> C[React Proxy]
+    C --> D[Consumer App]
+</div>
+
+<h2 id="configuring-the-react-output-target">Configuring the React Output Target</h2>
+
+<p>In <code class="language-plaintext highlighter-rouge">stencil.config.ts</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">reactOutputTarget</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@stencil/react-output-target</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">reactOutputTarget</span><span class="p">({</span>
+  <span class="na">componentCorePackage</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">outDir</span><span class="p">:</span> <span class="dl">'</span><span class="s1">../nucleus-react/lib/components/react-lib</span><span class="dl">'</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">componentCorePackage</code></strong>: The npm package name of your core Stencil library.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">outDir</code></strong>: Where to write generated React components. These files are overwritten on every build—never edit them manually.</li>
+</ul>
+
+<h2 id="what-gets-generated">What Gets Generated</h2>
+
+<p>After <code class="language-plaintext highlighter-rouge">npm run build -w nucleus</code>, check <code class="language-plaintext highlighter-rouge">nucleus-react/lib/components/react-lib/</code>. You’ll find TypeScript files like <code class="language-plaintext highlighter-rouge">NucleusButton.tsx</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">NucleusButton</span> <span class="o">=</span> <span class="nx">createReactComponent</span><span class="o">&lt;</span>
+  <span class="nx">JSX</span><span class="p">.</span><span class="nx">NucleusButton</span><span class="p">,</span>
+  <span class="nx">HTMLNucleusButtonElement</span>
+<span class="o">&gt;</span><span class="p">(</span><span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nx">defineCustomElement</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">createReactComponent</code> helper: registers the custom element on first use, forwards refs correctly, converts Stencil events to React callback props, and provides full TypeScript types. You get proper JSX support and IntelliSense.</p>
+
+<h2 id="developer-experience-before-and-after">Developer Experience: Before and After</h2>
+
+<p><strong>Without wrapper</strong> (works but painful):</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">&lt;</span><span class="nt">nucleus</span><span class="err">-</span><span class="na">button</span>
+  <span class="na">ref</span><span class="p">=</span><span class="si">{</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">el</span><span class="p">?.</span><span class="nf">addEventListener</span><span class="p">(</span><span class="dl">'</span><span class="s1">nucleusClick</span><span class="dl">'</span><span class="p">,</span> <span class="nx">handleClick</span><span class="p">)</span><span class="si">}</span>
+  <span class="na">type</span><span class="p">=</span><span class="s">"primary"</span>
+<span class="p">&gt;</span>
+  Click
+<span class="p">&lt;/</span><span class="nt">nucleus</span><span class="err">-</span><span class="na">button</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>With wrapper</strong> (idiomatic React):</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">&lt;</span><span class="nc">NucleusButton</span> <span class="na">type</span><span class="p">=</span><span class="s">"primary"</span> <span class="na">onNucleusClick</span><span class="p">=</span><span class="si">{</span><span class="nx">handleClick</span><span class="si">}</span><span class="p">&gt;</span>
+  Click
+<span class="p">&lt;/</span><span class="nc">NucleusButton</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Full TypeScript autocomplete, event handling as props, and refs work with <code class="language-plaintext highlighter-rouge">useRef()</code>.</p>
+
+<h2 id="event-mapping">Event Mapping</h2>
+
+<p>Stencil custom events automatically become React props:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Stencil Event</th>
+      <th>React Prop</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">nucleusChange</code></td>
+      <td><code class="language-plaintext highlighter-rouge">onNucleusChange</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">nucleusClick</code></td>
+      <td><code class="language-plaintext highlighter-rouge">onNucleusClick</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The event detail is passed as the callback argument. For <code class="language-plaintext highlighter-rouge">nucleusChange</code>, you typically receive <code class="language-plaintext highlighter-rouge">event.detail</code> with the new value.</p>
+
+<h2 id="critical-definecustomelements">Critical: defineCustomElements</h2>
+
+<p>Consumers must call <code class="language-plaintext highlighter-rouge">defineCustomElements()</code> once (e.g., in <code class="language-plaintext highlighter-rouge">main.tsx</code> or <code class="language-plaintext highlighter-rouge">App.tsx</code>) to register web components with the browser:</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus/loader</span><span class="dl">'</span><span class="p">;</span>
+<span class="nf">defineCustomElements</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>The React wrapper re-exports this for convenience. Without registration, <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> would be an unknown HTML element.</p>
+
+<h2 id="build-flow">Build Flow</h2>
+
+<div class="mermaid">flowchart LR
+    A[Edit nucleus] --> B[Stencil Build]
+    B --> C[Generate dist/]
+    B --> D[Generate React wrappers]
+    D --> E[nucleus-react updated]
+</div>
+
+<p>Every nucleus build regenerates the React wrappers. Downstream packages pick up changes via workspace symlinks. No manual sync required.</p>
+
+<h2 id="consumer-usage">Consumer Usage</h2>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">NucleusButton</span><span class="p">,</span> <span class="nx">NucleusInput</span><span class="p">,</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus-react</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="dl">'</span><span class="s1">nucleus/dist/nucleus/nucleus.css</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">defineCustomElements</span><span class="p">();</span>
+
+<span class="kd">function</span> <span class="nf">App</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;&gt;</span>
+      <span class="p">&lt;</span><span class="nc">NucleusButton</span> <span class="na">type</span><span class="p">=</span><span class="s">"primary"</span><span class="p">&gt;</span>Submit<span class="p">&lt;/</span><span class="nc">NucleusButton</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">NucleusInput</span> <span class="na">placeholder</span><span class="p">=</span><span class="s">"Name"</span> <span class="na">onNucleusChange</span><span class="p">=</span><span class="si">{</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">detail</span><span class="p">)</span><span class="si">}</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/&gt;</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Import the CSS for styles. The wrapper handles the rest.</p>
+
+<h2 id="tree-shaking">Tree-Shaking</h2>
+
+<p>With <code class="language-plaintext highlighter-rouge">includeImportCustomElements: true</code>, each React component imports only its custom element definition. Bundlers tree-shake unused components—importing only <code class="language-plaintext highlighter-rouge">NucleusButton</code> means only button code loads. No full-library bundle required.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 7 covers the Angular output target—how Angular’s module system, change detection, and form integration work with generated directives.</p>]]></content><author><name></name></author><category term="react" /><category term="react" /><category term="output-target" /><summary type="html"><![CDATA[Automatically generating idiomatic React components from Stencil web components with full TypeScript support.]]></summary></entry><entry><title type="html">Part 7: Angular Output Target and Wrapper</title><link href="http://localhost:4000/angular/angular-output-target/" rel="alternate" type="text/html" title="Part 7: Angular Output Target and Wrapper" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/angular/angular-output-target</id><content type="html" xml:base="http://localhost:4000/angular/angular-output-target/"><![CDATA[<h2 id="web-components-in-angular">Web Components in Angular</h2>
+
+<p>Angular has built-in support for custom elements. You can use <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> in templates if you add <code class="language-plaintext highlighter-rouge">CUSTOM_ELEMENTS_SCHEMA</code> to your NgModule. But without a wrapper, you lose TypeScript validation, template binding syntax for events, and Angular Forms integration (ngModel, FormControl). The Angular output target generates proper directives that fix all of this.</p>
+
+<div class="mermaid">flowchart LR
+    A[Stencil Component] --> B[angularOutputTarget]
+    B --> C[Angular Directives]
+    C --> D[NgModule]
+</div>
+
+<h2 id="configuring-the-angular-output-target">Configuring the Angular Output Target</h2>
+
+<p>In <code class="language-plaintext highlighter-rouge">stencil.config.ts</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">angularOutputTarget</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@stencil/angular-output-target</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">angularOutputTarget</span><span class="p">({</span>
+  <span class="na">componentCorePackage</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">outputType</span><span class="p">:</span> <span class="dl">'</span><span class="s1">component</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">directivesProxyFile</span><span class="p">:</span> <span class="dl">'</span><span class="s1">../nucleus-angular/projects/nucleus-ng-component-library/src/lib/.../proxies.ts</span><span class="dl">'</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">directivesProxyFile</code></strong>: Path where Stencil writes generated directive code. This file is overwritten on every build.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">outputType: 'component'</code></strong>: Generates component-style directives (vs standalone for newer Angular).</li>
+</ul>
+
+<h2 id="what-gets-generated">What Gets Generated</h2>
+
+<p>The generated <code class="language-plaintext highlighter-rouge">proxies.ts</code> contains Angular components that wrap the custom elements:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">ProxyCmp</span><span class="p">({</span> <span class="na">inputs</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">type</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">size</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">rounded</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">disabled</span><span class="dl">'</span><span class="p">]</span> <span class="p">})</span>
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">selector</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">changeDetection</span><span class="p">:</span> <span class="nx">ChangeDetectionStrategy</span><span class="p">.</span><span class="nx">OnPush</span><span class="p">,</span>
+  <span class="na">template</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;ng-content&gt;&lt;/ng-content&gt;</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">standalone</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">NucleusButton</span> <span class="p">{</span>
+  <span class="k">protected</span> <span class="nx">el</span><span class="p">:</span> <span class="nx">HTMLElement</span><span class="p">;</span>
+  <span class="nf">constructor</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">proxyOutputs</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">,</span> <span class="p">[</span><span class="dl">'</span><span class="s1">nucleusClick</span><span class="dl">'</span><span class="p">]);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">@ProxyCmp</code> decorator maps Stencil props to Angular inputs and forwards events to outputs. Content projection uses <code class="language-plaintext highlighter-rouge">&lt;ng-content&gt;</code>.</p>
+
+<h2 id="angular-module-setup">Angular Module Setup</h2>
+
+<p>Consumers import <code class="language-plaintext highlighter-rouge">NucleusComponentLibraryModule</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">NgModule</span><span class="p">({</span>
+  <span class="na">imports</span><span class="p">:</span> <span class="p">[</span>
+    <span class="nx">BrowserModule</span><span class="p">,</span>
+    <span class="nx">NucleusComponentLibraryModule</span>
+  <span class="p">],</span>
+  <span class="c1">// ...</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">AppModule</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>The module declares all generated directives and calls <code class="language-plaintext highlighter-rouge">defineCustomElements(window)</code> so web components register. Consumers don’t need to add <code class="language-plaintext highlighter-rouge">CUSTOM_ELEMENTS_SCHEMA</code>—it’s scoped to the library module.</p>
+
+<h2 id="forms-integration">Forms Integration</h2>
+
+<p>For inputs, checkboxes, and other form controls, you can configure value accessors so <code class="language-plaintext highlighter-rouge">ngModel</code> and <code class="language-plaintext highlighter-rouge">formControlName</code> work:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;nucleus-input</span> <span class="na">[(ngModel)]=</span><span class="s">"username"</span> <span class="na">placeholder=</span><span class="s">"Username"</span><span class="nt">&gt;&lt;/nucleus-input&gt;</span>
+</code></pre></div></div>
+
+<p>With the right <code class="language-plaintext highlighter-rouge">valueAccessorConfigs</code> in the output target, Angular Forms bind correctly to the custom element’s value and change events.</p>
+
+<h2 id="event-handling-in-templates">Event Handling in Templates</h2>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;nucleus-button</span> <span class="na">type=</span><span class="s">"primary"</span> <span class="na">(nucleusClick)=</span><span class="s">"onSubmit()"</span><span class="nt">&gt;</span>
+  Submit
+<span class="nt">&lt;/nucleus-button&gt;</span>
+</code></pre></div></div>
+
+<p>Angular’s event binding <code class="language-plaintext highlighter-rouge">(nucleusClick)</code> works like any other output. TypeScript preserves event typings.</p>
+
+<h2 id="build-process">Build Process</h2>
+
+<div class="mermaid">flowchart TB
+    A[Build nucleus] --> B[Generate proxies.ts]
+    B --> C[ng-packagr build]
+    C --> D[APF dist/]
+</div>
+
+<p>The Angular library uses <code class="language-plaintext highlighter-rouge">ng-packagr</code> to compile to Angular Package Format. Build order: nucleus first, then nucleus-angular. Nx handles this via <code class="language-plaintext highlighter-rouge">dependsOn</code>.</p>
+
+<h2 id="standalone-component-support-angular-14">Standalone Component Support (Angular 14+)</h2>
+
+<p>For standalone components, import the directive directly:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">standalone</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">imports</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+  <span class="na">template</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button type="primary"&gt;Click&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">LoginComponent</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<h2 id="change-detection">Change Detection</h2>
+
+<p>Generated directives use <code class="language-plaintext highlighter-rouge">ChangeDetectionStrategy.OnPush</code> for performance. They re-check only when inputs change. Zone.js ensures custom element attribute updates still trigger detection when needed.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 8 covers Storybook setup for React—configuring the dev server, loading global styles, and organizing stories by Atomic Design.</p>]]></content><author><name></name></author><category term="angular" /><category term="angular" /><category term="output-target" /><summary type="html"><![CDATA[Generating Angular directives that integrate seamlessly with Angular modules, change detection, and forms.]]></summary></entry><entry><title type="html">Part 8: Storybook Setup — React</title><link href="http://localhost:4000/storybook-react/storybook-react-setup/" rel="alternate" type="text/html" title="Part 8: Storybook Setup — React" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/storybook-react/storybook-react-setup</id><content type="html" xml:base="http://localhost:4000/storybook-react/storybook-react-setup/"><![CDATA[<h2 id="why-storybook-for-design-systems">Why Storybook for Design Systems?</h2>
+
+<p>Storybook is the industry standard for component documentation. It lets you view components in isolation, tweak props in real time, and auto-generate API docs from TypeScript. Designers and QA can explore components without running the full app. Major design systems (Material-UI, Carbon, Ant Design) use Storybook as their primary docs tool.</p>
+
+<p>For Nucleus, we run two Storybooks—one for React and one for Angular—so each framework’s developers see usage examples in their preferred syntax.</p>
+
+<h2 id="project-structure">Project Structure</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>packages/sb-nucleus-react/
+├── .storybook/
+│   ├── main.ts       # Storybook config, addons, framework
+│   └── preview.ts    # Global decorators, parameters, CSS
+├── src/stories/
+│   ├── ATOMS/        # Button, Input, Checkbox, etc.
+│   ├── MOLECULES/    # Header, Footer, Multiselect
+│   └── ELEMENTS/     # Login page, Dashboard
+└── package.json
+</code></pre></div></div>
+
+<h2 id="critical-previewts-configuration">Critical: preview.ts Configuration</h2>
+
+<p>The preview file sets up requirements shared by all stories:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus/loader</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="dl">'</span><span class="s1">nucleus/dist/nucleus/nucleus.css</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">defineCustomElements</span><span class="p">();</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">parameters</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">controls</span><span class="p">:</span> <span class="p">{</span> <span class="na">expanded</span><span class="p">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="na">options</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">storySort</span><span class="p">:</span> <span class="p">{</span> <span class="na">order</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">ATOMS</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">MOLECULES</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">ELEMENTS</span><span class="dl">'</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p><strong>Two essential lines</strong>:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">defineCustomElements()</code></strong>: Registers all Nucleus web components. Without this, <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> is unknown HTML.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">import 'nucleus/dist/nucleus/nucleus.css'</code></strong>: Loads design tokens and component styles. Without this, components render unstyled.</li>
+</ol>
+
+<h2 id="story-structure-csf3">Story Structure (CSF3)</h2>
+
+<p>Stories use Component Story Format 3:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="kd">type</span> <span class="p">{</span> <span class="nx">Meta</span><span class="p">,</span> <span class="nx">StoryObj</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/react</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">NucleusButton</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus-react</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">meta</span><span class="p">:</span> <span class="nx">Meta</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">NucleusButton</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">component</span><span class="p">:</span> <span class="nx">NucleusButton</span><span class="p">,</span>
+  <span class="na">tags</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">autodocs</span><span class="dl">'</span><span class="p">],</span>
+  <span class="na">argTypes</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">size</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">xs</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">sm</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">lg</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">xl</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">rounded</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">boolean</span><span class="dl">'</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">meta</span><span class="p">;</span>
+<span class="kd">type</span> <span class="nx">Story</span> <span class="o">=</span> <span class="nx">StoryObj</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">NucleusButton</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Primary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="na">children</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Primary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Secondary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">,</span> <span class="na">children</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Secondary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">title</code></strong>: Determines sidebar location. <code class="language-plaintext highlighter-rouge">ATOMS/Button</code> nests under ATOMS.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">tags: ['autodocs']</code></strong>: Auto-generates a Docs tab with prop tables.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">argTypes</code></strong>: Configures Controls panel (select, boolean, text).</li>
+  <li><strong>Named exports</strong>: Each is a story variant.</li>
+</ul>
+
+<h2 id="storybook-categories">Storybook Categories</h2>
+
+<div class="mermaid">flowchart TD
+    A[ATOMS] --> B[Button]
+    A --> C[Input]
+    A --> D[Checkbox]
+    E[MOLECULES] --> F[Header]
+    E --> G[Multiselect]
+</div>
+
+<p>Users see this hierarchy in the sidebar. Build from atoms upward.</p>
+
+<h2 id="running-storybook">Running Storybook</h2>
+
+<p><strong>Development</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run storybook <span class="nt">-w</span> sb-nucleus-react
+</code></pre></div></div>
+
+<p>Starts dev server (typically http://localhost:6006) with hot reload.</p>
+
+<p><strong>Production build</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build-storybook <span class="nt">-w</span> sb-nucleus-react
+</code></pre></div></div>
+
+<p>Outputs to <code class="language-plaintext highlighter-rouge">storybook-static/</code>—a static SPA deployable to any host.</p>
+
+<h2 id="common-gotcha-styles-not-loading">Common Gotcha: Styles Not Loading</h2>
+
+<p>If components render but look unstyled, you forgot to import the CSS in <code class="language-plaintext highlighter-rouge">preview.ts</code>. Web components don’t bundle their own styles when using global styles—consumers (including Storybook) must import <code class="language-plaintext highlighter-rouge">nucleus.css</code>.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 9 covers the Angular Storybook—Compodoc integration, module metadata, and Angular-specific story patterns.</p>]]></content><author><name></name></author><category term="storybook-react" /><category term="storybook" /><category term="react" /><summary type="html"><![CDATA[Building interactive component documentation with Storybook for React, including story structure, controls, and global style loading.]]></summary></entry><entry><title type="html">Part 9: Storybook Setup — Angular</title><link href="http://localhost:4000/storybook-angular/storybook-angular-setup/" rel="alternate" type="text/html" title="Part 9: Storybook Setup — Angular" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/storybook-angular/storybook-angular-setup</id><content type="html" xml:base="http://localhost:4000/storybook-angular/storybook-angular-setup/"><![CDATA[<h2 id="angular-storybook-differences">Angular Storybook Differences</h2>
+
+<p>React Storybook imports components directly. Angular Storybook must account for NgModules, dependency injection, and change detection. The <code class="language-plaintext highlighter-rouge">@storybook/angular</code> package handles these. The main differences: you provide <code class="language-plaintext highlighter-rouge">moduleMetadata</code> so stories have access to your modules, and you use Compodoc for API docs instead of Stencil’s generated docs.</p>
+
+<div class="mermaid">flowchart LR
+    A[Angular Storybook] --> B[moduleMetadata]
+    A --> C[Compodoc JSON]
+    A --> D[defineCustomElements]
+</div>
+
+<h2 id="critical-previewts-for-angular">Critical: preview.ts for Angular</h2>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">setCompodocJson</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/addon-docs/angular</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">moduleMetadata</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@storybook/angular</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">defineCustomElements</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">nucleus/loader</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">docJson</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">../documentation.json</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">setCompodocJson</span><span class="p">(</span><span class="nx">docJson</span><span class="p">);</span>
+<span class="nf">defineCustomElements</span><span class="p">(</span><span class="nb">window</span><span class="p">);</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">decorators</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="nf">moduleMetadata</span><span class="p">({</span>
+    <span class="na">imports</span><span class="p">:</span> <span class="p">[</span><span class="nx">CommonModule</span><span class="p">,</span> <span class="nx">NucleusComponentLibraryModule</span><span class="p">]</span>
+  <span class="p">})</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<p><strong>Key pieces</strong>:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">setCompodocJson(docJson)</code></strong>: Loads Angular API metadata. Compodoc generates <code class="language-plaintext highlighter-rouge">documentation.json</code> from your Angular library.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">moduleMetadata</code></strong>: Makes <code class="language-plaintext highlighter-rouge">NucleusComponentLibraryModule</code> available to every story. Without it, Angular doesn’t recognize <code class="language-plaintext highlighter-rouge">nucleus-button</code>.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">defineCustomElements(window)</code></strong>: Registers web components.</li>
+</ol>
+
+<h2 id="compodoc-setup">Compodoc Setup</h2>
+
+<p>Compodoc generates API documentation from Angular decorators and JSDoc. Add to <code class="language-plaintext highlighter-rouge">package.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"compodoc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"compodoc -p tsconfig.json -e json -d ."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"storybook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run compodoc &amp;&amp; storybook dev -p 6007"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Run <code class="language-plaintext highlighter-rouge">compodoc</code> before Storybook so <code class="language-plaintext highlighter-rouge">documentation.json</code> exists. Storybook’s docs addon uses it for the ArgsTable and API panels.</p>
+
+<h2 id="angular-story-format">Angular Story Format</h2>
+
+<p>Stories use templates instead of JSX:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">meta</span><span class="p">:</span> <span class="nx">Meta</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">render</span><span class="p">:</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">({</span>
+    <span class="na">props</span><span class="p">:</span> <span class="nx">args</span><span class="p">,</span>
+    <span class="na">template</span><span class="p">:</span> <span class="s2">`
+      &lt;nucleus-button
+        [type]="type"
+        [size]="size"
+        [rounded]="rounded"
+        [disabled]="disabled"
+        (nucleusClick)="onClick()"
+      &gt;
+        
+      &lt;/nucleus-button&gt;
+    `</span>
+  <span class="p">}),</span>
+  <span class="na">argTypes</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">select</span><span class="dl">'</span><span class="p">,</span> <span class="na">options</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span><span class="p">]</span> <span class="p">},</span>
+    <span class="na">label</span><span class="p">:</span> <span class="p">{</span> <span class="na">control</span><span class="p">:</span> <span class="dl">'</span><span class="s1">text</span><span class="dl">'</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">Primary</span><span class="p">:</span> <span class="nx">Story</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">args</span><span class="p">:</span> <span class="p">{</span> <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Primary Button</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>Property binding</strong>: <code class="language-plaintext highlighter-rouge">[type]="type"</code> for inputs.</li>
+  <li><strong>Event binding</strong>: <code class="language-plaintext highlighter-rouge">(nucleusClick)="onClick()"</code> for outputs.</li>
+  <li><strong>Interpolation</strong>: `` for text.</li>
+</ul>
+
+<h2 id="global-styles">Global Styles</h2>
+
+<p>In <code class="language-plaintext highlighter-rouge">src/styles.css</code> or <code class="language-plaintext highlighter-rouge">main.ts</code> styles array:</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@import</span> <span class="s2">'nucleus/dist/nucleus/nucleus.css'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Reference this in Storybook config so it loads for all stories. Without it, components render unstyled.</p>
+
+<h2 id="storybook-port">Storybook Port</h2>
+
+<p>React and Angular Storybooks use different ports to run simultaneously (e.g., 6006 for React, 6007 for Angular). Configure in <code class="language-plaintext highlighter-rouge">package.json</code> or Storybook config.</p>
+
+<h2 id="combined-bundle-for-deployment">Combined Bundle for Deployment</h2>
+
+<p>For production, both Storybooks are built and combined into one deployable package. Users see an index page with links to React and Angular docs. The <code class="language-plaintext highlighter-rouge">prepare-storybook-webapp-package.cjs</code> script handles this.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 10 explains Atomic Design—how to categorize components as atoms, molecules, and elements, and why that structure matters for Storybook and maintainability.</p>]]></content><author><name></name></author><category term="storybook-angular" /><category term="storybook" /><category term="angular" /><summary type="html"><![CDATA[Setting up Storybook for Angular with Compodoc API documentation, module imports, and Angular-specific story patterns.]]></summary></entry><entry><title type="html">Part 10: Atomic Design Categorization</title><link href="http://localhost:4000/architecture/atomic-design-categorization/" rel="alternate" type="text/html" title="Part 10: Atomic Design Categorization" /><published>2026-03-22T00:00:00+05:30</published><updated>2026-03-22T00:00:00+05:30</updated><id>http://localhost:4000/architecture/atomic-design-categorization</id><content type="html" xml:base="http://localhost:4000/architecture/atomic-design-categorization/"><![CDATA[<h2 id="what-is-atomic-design">What is Atomic Design?</h2>
+
+<p>Atomic Design, coined by Brad Frost, breaks interfaces into hierarchical building blocks—like atoms in chemistry. Atoms are the smallest units; molecules combine atoms; organisms combine molecules; templates and pages assemble organisms. This mental model helps teams understand dependencies, organize codebases, and communicate with a shared vocabulary.</p>
+
+<div class="mermaid">flowchart TD
+    A[Atoms] --> B[Molecules]
+    B --> C[Organisms]
+    C --> D[Templates]
+    D --> E[Pages]
+</div>
+
+<p>For Nucleus, we use a simplified set: <strong>ATOMS</strong>, <strong>MOLECULES</strong>, and <strong>ELEMENTS</strong> (our term for page-level compositions). This is enough structure without over-complicating.</p>
+
+<h2 id="atoms-ui-primitives">Atoms: UI Primitives</h2>
+
+<p><strong>Definition</strong>: Indivisible, single-purpose elements. They don’t contain other Nucleus components.</p>
+
+<p><strong>Nucleus examples</strong>: <code class="language-plaintext highlighter-rouge">nucleus-button</code>, <code class="language-plaintext highlighter-rouge">nucleus-input</code>, <code class="language-plaintext highlighter-rouge">nucleus-checkbox</code>, <code class="language-plaintext highlighter-rouge">nucleus-radio</code>, <code class="language-plaintext highlighter-rouge">nucleus-pill</code>, <code class="language-plaintext highlighter-rouge">nucleus-avatar</code>, <code class="language-plaintext highlighter-rouge">nucleus-progress</code>, <code class="language-plaintext highlighter-rouge">nucleus-toggle</code>, <code class="language-plaintext highlighter-rouge">nucleus-textarea</code>, <code class="language-plaintext highlighter-rouge">nucleus-dropdown</code>.</p>
+
+<p><strong>Characteristics</strong>:</p>
+<ul>
+  <li>Highly reusable</li>
+  <li>Map roughly 1:1 to HTML elements (button, input, img)</li>
+  <li>Accept props but little internal state</li>
+</ul>
+
+<p><strong>When to create an atom</strong>: When you need a styled, reusable version of a standard UI primitive used across the app.</p>
+
+<h2 id="molecules-simple-compositions">Molecules: Simple Compositions</h2>
+
+<p><strong>Definition</strong>: Groups of atoms that function together as a unit.</p>
+
+<p><strong>Nucleus examples</strong>: <code class="language-plaintext highlighter-rouge">nucleus-header</code> (logo + nav + buttons), <code class="language-plaintext highlighter-rouge">nucleus-footer</code>, <code class="language-plaintext highlighter-rouge">nucleus-multiselect</code> (input + dropdown + pills), <code class="language-plaintext highlighter-rouge">nucleus-accordion</code> (header + body).</p>
+
+<p><strong>Characteristics</strong>:</p>
+<ul>
+  <li>Composed of 2+ atoms</li>
+  <li>Single focused purpose</li>
+  <li>Encapsulate pattern logic (e.g., multiselect managing selected items)</li>
+</ul>
+
+<p><strong>When to create a molecule</strong>: When 2+ atoms consistently appear together and benefit from shared logic.</p>
+
+<h2 id="elements-page-level-compositions">Elements (Page-Level Compositions)</h2>
+
+<p><strong>Definition</strong>: Full UI sections that show how molecules and atoms combine into complete screens. In Nucleus we call these ELEMENTS to avoid confusion with Angular’s concept of “elements.”</p>
+
+<p><strong>Examples</strong>: Login Page (form inputs + button + header), Dashboard (metrics + navigation).</p>
+
+<p>These are often built as Storybook “stories” or example pages, not always as separate Stencil components.</p>
+
+<h2 id="decision-framework">Decision Framework</h2>
+
+<div class="mermaid">flowchart TD
+    Q{Contains other nucleus components?}
+    Q -->|Yes| M[Molecule]
+    Q -->|No| A[Atom]
+    Q2{Full page section?}
+    Q2 -->|Yes| E[Element]
+</div>
+
+<p><strong>Is it an atom or molecule?</strong> If it contains other Nucleus components, it’s a molecule. Otherwise, atom.</p>
+
+<p><strong>Is it a molecule or element?</strong> If it represents a full page section or workflow, it’s an element. If it’s a reusable pattern, molecule.</p>
+
+<h2 id="storybook-implementation">Storybook Implementation</h2>
+
+<p>Category drives the story <code class="language-plaintext highlighter-rouge">title</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Atom</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span>
+
+<span class="c1">// Molecule</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">MOLECULES/Header</span><span class="dl">'</span>
+
+<span class="c1">// Element</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ELEMENTS/Login Page</span><span class="dl">'</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">storySort.order</code> in <code class="language-plaintext highlighter-rouge">preview.ts</code> enforces sidebar order: <code class="language-plaintext highlighter-rouge">['ATOMS', 'MOLECULES', 'ELEMENTS']</code>. Developers navigate from simple to complex.</p>
+
+<h2 id="benefits-for-junior-developers">Benefits for Junior Developers</h2>
+
+<ul>
+  <li><strong>Clear location</strong>: “I need a button” → check ATOMS.</li>
+  <li><strong>Understand dependencies</strong>: Atoms have none; molecules depend on atoms.</li>
+  <li><strong>Implementation order</strong>: Build atoms first, then molecules.</li>
+  <li><strong>Shared vocabulary</strong>: Designers and developers use the same terms.</li>
+</ul>
+
+<h2 id="anti-patterns">Anti-Patterns</h2>
+
+<p><strong>Don’t over-categorize</strong>: If you’re debating for more than a few minutes, pick one and move on.</p>
+
+<p><strong>Don’t create atoms for everything</strong>: Not every styled div needs to be a component. Atoms are for reusable primitives.</p>
+
+<p><strong>Don’t couple atoms to molecules</strong>: Atoms should never import molecules. Dependency flow is one-way.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 11 dives deeper into design tokens—semantic aliases, theming, and consumer overrides without recompiling.</p>]]></content><author><name></name></author><category term="architecture" /><category term="atomic-design" /><category term="storybook" /><summary type="html"><![CDATA[Organizing components using Atomic Design principles—atoms, molecules, organisms, and pages—for scalable design systems.]]></summary></entry></feed>

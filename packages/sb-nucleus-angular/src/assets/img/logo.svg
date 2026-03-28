@@ -1,0 +1,24 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nucleus-core" x1="72" y1="72" x2="184" y2="184" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1fb6ff"/>
+      <stop offset="1" stop-color="#7e5bef"/>
+    </linearGradient>
+    <linearGradient id="nucleus-orbit" x1="40" y1="128" x2="216" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1fb6ff"/>
+      <stop offset="1" stop-color="#7e5bef"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="48" fill="#ffffff"/>
+
+  <ellipse cx="128" cy="128" rx="92" ry="42" stroke="url(#nucleus-orbit)" stroke-width="10"/>
+  <ellipse cx="128" cy="128" rx="42" ry="92" stroke="url(#nucleus-orbit)" stroke-width="10" transform="rotate(24 128 128)"/>
+  <ellipse cx="128" cy="128" rx="42" ry="92" stroke="url(#nucleus-orbit)" stroke-width="10" transform="rotate(-24 128 128)"/>
+
+  <circle cx="128" cy="128" r="34" fill="url(#nucleus-core)"/>
+
+  <circle cx="46" cy="128" r="10" fill="#1fb6ff"/>
+  <circle cx="210" cy="128" r="10" fill="#7e5bef"/>
+  <circle cx="128" cy="54" r="9" fill="#4f8cff"/>
+</svg>

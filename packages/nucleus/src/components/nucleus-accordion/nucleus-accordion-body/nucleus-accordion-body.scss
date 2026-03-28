@@ -1,0 +1,9 @@
+.nucleus-accordion-body-content {
+  padding: var(--nucleus-spacing-5);
+  border: 1px solid var(--nucleus-color-gray-200);
+  border-bottom: 0;
+  background: var(--nucleus-color-white);
+}
+.nucleus-accordion-body-text { color: var(--nucleus-color-gray-500); margin: 0 0 var(--nucleus-spacing-2) 0; }
+.nucleus-accordion-body-text:last-child { margin-bottom: 0; }
+.nucleus-accordion-body-link { color: #2563eb; text-decoration: underline; }

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 4: Building Your First Component | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 4: Building Your First Component" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Step-by-step guide to creating nucleus-button with props, variants, and unit tests." />
+<meta property="og:description" content="Step-by-step guide to creating nucleus-button with props, variants, and unit tests." />
+<link rel="canonical" href="http://localhost:4000/components/building-your-first-component/" />
+<meta property="og:url" content="http://localhost:4000/components/building-your-first-component/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 4: Building Your First Component" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Step-by-step guide to creating nucleus-button with props, variants, and unit tests.","headline":"Part 4: Building Your First Component","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/components/building-your-first-component/"},"url":"http://localhost:4000/components/building-your-first-component/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 4: Building Your First Component</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 4</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#component-driven-development">Component-Driven Development</a></li>
+<li class="toc-entry toc-h2"><a href="#anatomy-of-a-stencil-component">Anatomy of a Stencil Component</a></li>
+<li class="toc-entry toc-h2"><a href="#step-1-generate-the-component-scaffold">Step 1: Generate the Component Scaffold</a></li>
+<li class="toc-entry toc-h2"><a href="#step-2-define-props-and-the-public-api">Step 2: Define Props and the Public API</a></li>
+<li class="toc-entry toc-h2"><a href="#step-3-add-scss-styles-with-tokens">Step 3: Add SCSS Styles with Tokens</a></li>
+<li class="toc-entry toc-h2"><a href="#step-4-write-unit-tests">Step 4: Write Unit Tests</a></li>
+<li class="toc-entry toc-h2"><a href="#step-5-build-and-verify">Step 5: Build and Verify</a></li>
+<li class="toc-entry toc-h2"><a href="#best-practices-for-junior-developers">Best Practices for Junior Developers</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="component-driven-development">Component-Driven Development</h2>
+
+<p>Let’s build <code class="language-plaintext highlighter-rouge">nucleus-button</code>—the foundational component of any design system. A well-designed button demonstrates all core concepts: props for variants, event handling, accessibility, and styling with design tokens. If you’re new to component development, think of this as building a reusable Lego block that other developers will use everywhere.</p>
+
+<h2 id="anatomy-of-a-stencil-component">Anatomy of a Stencil Component</h2>
+
+<p>Every Stencil component needs:</p>
+
+<ol>
+  <li><strong>A TypeScript class</strong> with the <code class="language-plaintext highlighter-rouge">@Component</code> decorator</li>
+  <li><strong>A <code class="language-plaintext highlighter-rouge">render()</code> method</strong> that returns JSX</li>
+  <li><strong>A stylesheet</strong> (<code class="language-plaintext highlighter-rouge">.scss</code> for Nucleus)</li>
+  <li><strong>Unit tests</strong> (<code class="language-plaintext highlighter-rouge">.spec.tsx</code>)</li>
+</ol>
+
+<p>Optional: E2E tests in <code class="language-plaintext highlighter-rouge">test/</code> for browser-level validation.</p>
+
+<h2 id="step-1-generate-the-component-scaffold">Step 1: Generate the Component Scaffold</h2>
+
+<p>From the <code class="language-plaintext highlighter-rouge">packages/nucleus</code> directory:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx stencil generate
+<span class="c"># Choose: component</span>
+<span class="c"># Name: nucleus-button</span>
+</code></pre></div></div>
+
+<p>This creates the folder structure, base files, and a spec file. Don’t worry about getting everything perfect—you’ll replace most of the boilerplate.</p>
+
+<h2 id="step-2-define-props-and-the-public-api">Step 2: Define Props and the Public API</h2>
+
+<p>Props are the component’s contract with the outside world. Keep the API minimal and semantic.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">tag</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">styleUrl</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">shadow</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">NucleusButton</span> <span class="p">{</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="kd">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">size</span><span class="p">:</span> <span class="dl">'</span><span class="s1">xs</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">sm</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">lg</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">xl</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">md</span><span class="dl">'</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="nx">rounded</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">@</span><span class="nd">Prop</span><span class="p">({</span> <span class="na">reflect</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span> <span class="nx">disabled</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+
+  <span class="nf">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">(</span>
+      <span class="o">&lt;</span><span class="nx">button</span>
+        <span class="kd">type</span><span class="o">=</span><span class="dl">"</span><span class="s2">button</span><span class="dl">"</span>
+        <span class="kd">class</span><span class="o">=</span><span class="p">{</span><span class="nf">classNames</span><span class="p">(</span><span class="dl">'</span><span class="s1">btn</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+          <span class="p">[</span><span class="s2">`btn-</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="kd">type</span><span class="p">}</span><span class="s2">`</span><span class="p">]:</span> <span class="kc">true</span><span class="p">,</span>
+          <span class="na">rounded</span><span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">rounded</span><span class="p">,</span>
+          <span class="na">disabled</span><span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">disabled</span><span class="p">,</span>
+          <span class="p">[</span><span class="s2">`btn-</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">size</span><span class="p">}</span><span class="s2">`</span><span class="p">]:</span> <span class="kc">true</span>
+        <span class="p">})}</span>
+        <span class="nx">disabled</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">disabled</span><span class="p">}</span>
+      <span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">slot</span> <span class="o">/&gt;</span>
+      <span class="o">&lt;</span><span class="sr">/button</span><span class="err">&gt;
+</span>    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Design decisions</strong>:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">type</code></strong>: Primary vs secondary conveys intent. Designers understand “primary” means the main action.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">size</code></strong>: Aligns with typography scale (xs through xl).</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">&lt;slot /&gt;</code></strong>: Projects child content—text, icons—from the consumer. Essential for flexibility.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">classNames</code></strong>: The <code class="language-plaintext highlighter-rouge">classnames</code> library composes CSS classes from prop values cleanly.</li>
+</ul>
+
+<h2 id="step-3-add-scss-styles-with-tokens">Step 3: Add SCSS Styles with Tokens</h2>
+
+<p>Never hardcode colors or spacing. Use design tokens:</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@use</span> <span class="s1">'../../styles/tokens'</span> <span class="nt">as</span> <span class="nt">tokens</span><span class="p">;</span>
+
+<span class="nc">.btn</span> <span class="p">{</span>
+  <span class="nl">font-family</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-font-family-sans</span><span class="p">);</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-2</span><span class="p">)</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-spacing-4</span><span class="p">);</span>
+  <span class="nl">border-radius</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-radius-md</span><span class="p">);</span>
+  <span class="nl">cursor</span><span class="p">:</span> <span class="nb">pointer</span><span class="p">;</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-primary</span> <span class="p">{</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-white</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-secondary</span> <span class="p">{</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="nb">transparent</span><span class="p">;</span>
+    <span class="nl">border</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">solid</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-border-color</span><span class="p">);</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="nf">var</span><span class="p">(</span><span class="o">--</span><span class="n">nucleus-color-primary</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">&amp;</span><span class="nc">.btn-disabled</span> <span class="p">{</span>
+    <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="mi">.6</span><span class="p">;</span>
+    <span class="nl">cursor</span><span class="p">:</span> <span class="ow">not</span><span class="o">-</span><span class="n">allowed</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">var(--nucleus-*)</code> pattern means consumers can override these at runtime for theming—without recompiling your library.</p>
+
+<h2 id="step-4-write-unit-tests">Step 4: Write Unit Tests</h2>
+
+<p>Use Stencil’s <code class="language-plaintext highlighter-rouge">newSpecPage()</code> for fast, isolated tests:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">newSpecPage</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@stencil/core/testing</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">NucleusButton</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./nucleus-button</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">describe</span><span class="p">(</span><span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nf">it</span><span class="p">(</span><span class="dl">'</span><span class="s1">renders with default props</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">page</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">newSpecPage</span><span class="p">({</span>
+      <span class="na">components</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+      <span class="na">html</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button&gt;Click me&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+    <span class="p">});</span>
+    <span class="kd">const</span> <span class="nx">button</span> <span class="o">=</span> <span class="nx">page</span><span class="p">.</span><span class="nx">root</span><span class="p">?.</span><span class="nf">querySelector</span><span class="p">(</span><span class="dl">'</span><span class="s1">button</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nx">button</span><span class="p">?.</span><span class="nx">classList</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="dl">'</span><span class="s1">btn-primary</span><span class="dl">'</span><span class="p">)).</span><span class="nf">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">});</span>
+
+  <span class="nf">it</span><span class="p">(</span><span class="dl">'</span><span class="s1">reflects disabled to attribute</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">page</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">newSpecPage</span><span class="p">({</span>
+      <span class="na">components</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+      <span class="na">html</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button disabled&gt;Click&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+    <span class="p">});</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">root</span><span class="p">?.</span><span class="nf">hasAttribute</span><span class="p">(</span><span class="dl">'</span><span class="s1">disabled</span><span class="dl">'</span><span class="p">)).</span><span class="nf">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Run tests with <code class="language-plaintext highlighter-rouge">npm run test -w nucleus</code>. Tests should be fast—no real browser required for most spec tests.</p>
+
+<h2 id="step-5-build-and-verify">Step 5: Build and Verify</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build <span class="nt">-w</span> nucleus
+</code></pre></div></div>
+
+<p>Inspect <code class="language-plaintext highlighter-rouge">packages/nucleus/dist/</code>. You’ll find compiled JavaScript, type definitions, and <code class="language-plaintext highlighter-rouge">nucleus.css</code>. The build also regenerates React and Angular wrappers—so <code class="language-plaintext highlighter-rouge">nucleus-react</code> and <code class="language-plaintext highlighter-rouge">nucleus-angular</code> now expose <code class="language-plaintext highlighter-rouge">NucleusButton</code>.</p>
+
+<div class="mermaid">flowchart LR
+    A[TSX + SCSS] --> B[Stencil Build]
+    B --> C[dist/]
+    B --> D[React Wrapper]
+    B --> E[Angular Wrapper]
+</div>
+
+<h2 id="best-practices-for-junior-developers">Best Practices for Junior Developers</h2>
+
+<ol>
+  <li><strong>Start with props</strong>: Define the minimal API. Fewer props = simpler component.</li>
+  <li><strong>Use semantic names</strong>: <code class="language-plaintext highlighter-rouge">type="primary"</code> beats <code class="language-plaintext highlighter-rouge">variant="blue"</code>.</li>
+  <li><strong>Provide defaults</strong>: Every prop should have a sensible default.</li>
+  <li><strong>Reflect boolean props</strong>: Enables CSS <code class="language-plaintext highlighter-rouge">[disabled]</code> selectors.</li>
+  <li><strong>Test as you go</strong>: Don’t defer tests until the end.</li>
+</ol>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>In Part 5, we’ll establish the SCSS design token system—colors, spacing, typography, borders—that powers consistent styling across all components.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

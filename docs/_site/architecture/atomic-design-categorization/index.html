@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 10: Atomic Design Categorization | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 10: Atomic Design Categorization" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Organizing components using Atomic Design principles—atoms, molecules, organisms, and pages—for scalable design systems." />
+<meta property="og:description" content="Organizing components using Atomic Design principles—atoms, molecules, organisms, and pages—for scalable design systems." />
+<link rel="canonical" href="http://localhost:4000/architecture/atomic-design-categorization/" />
+<meta property="og:url" content="http://localhost:4000/architecture/atomic-design-categorization/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 10: Atomic Design Categorization" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Organizing components using Atomic Design principles—atoms, molecules, organisms, and pages—for scalable design systems.","headline":"Part 10: Atomic Design Categorization","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/architecture/atomic-design-categorization/"},"url":"http://localhost:4000/architecture/atomic-design-categorization/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 10: Atomic Design Categorization</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 10</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#what-is-atomic-design">What is Atomic Design?</a></li>
+<li class="toc-entry toc-h2"><a href="#atoms-ui-primitives">Atoms: UI Primitives</a></li>
+<li class="toc-entry toc-h2"><a href="#molecules-simple-compositions">Molecules: Simple Compositions</a></li>
+<li class="toc-entry toc-h2"><a href="#elements-page-level-compositions">Elements (Page-Level Compositions)</a></li>
+<li class="toc-entry toc-h2"><a href="#decision-framework">Decision Framework</a></li>
+<li class="toc-entry toc-h2"><a href="#storybook-implementation">Storybook Implementation</a></li>
+<li class="toc-entry toc-h2"><a href="#benefits-for-junior-developers">Benefits for Junior Developers</a></li>
+<li class="toc-entry toc-h2"><a href="#anti-patterns">Anti-Patterns</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="what-is-atomic-design">What is Atomic Design?</h2>
+
+<p>Atomic Design, coined by Brad Frost, breaks interfaces into hierarchical building blocks—like atoms in chemistry. Atoms are the smallest units; molecules combine atoms; organisms combine molecules; templates and pages assemble organisms. This mental model helps teams understand dependencies, organize codebases, and communicate with a shared vocabulary.</p>
+
+<div class="mermaid">flowchart TD
+    A[Atoms] --> B[Molecules]
+    B --> C[Organisms]
+    C --> D[Templates]
+    D --> E[Pages]
+</div>
+
+<p>For Nucleus, we use a simplified set: <strong>ATOMS</strong>, <strong>MOLECULES</strong>, and <strong>ELEMENTS</strong> (our term for page-level compositions). This is enough structure without over-complicating.</p>
+
+<h2 id="atoms-ui-primitives">Atoms: UI Primitives</h2>
+
+<p><strong>Definition</strong>: Indivisible, single-purpose elements. They don’t contain other Nucleus components.</p>
+
+<p><strong>Nucleus examples</strong>: <code class="language-plaintext highlighter-rouge">nucleus-button</code>, <code class="language-plaintext highlighter-rouge">nucleus-input</code>, <code class="language-plaintext highlighter-rouge">nucleus-checkbox</code>, <code class="language-plaintext highlighter-rouge">nucleus-radio</code>, <code class="language-plaintext highlighter-rouge">nucleus-pill</code>, <code class="language-plaintext highlighter-rouge">nucleus-avatar</code>, <code class="language-plaintext highlighter-rouge">nucleus-progress</code>, <code class="language-plaintext highlighter-rouge">nucleus-toggle</code>, <code class="language-plaintext highlighter-rouge">nucleus-textarea</code>, <code class="language-plaintext highlighter-rouge">nucleus-dropdown</code>.</p>
+
+<p><strong>Characteristics</strong>:</p>
+<ul>
+  <li>Highly reusable</li>
+  <li>Map roughly 1:1 to HTML elements (button, input, img)</li>
+  <li>Accept props but little internal state</li>
+</ul>
+
+<p><strong>When to create an atom</strong>: When you need a styled, reusable version of a standard UI primitive used across the app.</p>
+
+<h2 id="molecules-simple-compositions">Molecules: Simple Compositions</h2>
+
+<p><strong>Definition</strong>: Groups of atoms that function together as a unit.</p>
+
+<p><strong>Nucleus examples</strong>: <code class="language-plaintext highlighter-rouge">nucleus-header</code> (logo + nav + buttons), <code class="language-plaintext highlighter-rouge">nucleus-footer</code>, <code class="language-plaintext highlighter-rouge">nucleus-multiselect</code> (input + dropdown + pills), <code class="language-plaintext highlighter-rouge">nucleus-accordion</code> (header + body).</p>
+
+<p><strong>Characteristics</strong>:</p>
+<ul>
+  <li>Composed of 2+ atoms</li>
+  <li>Single focused purpose</li>
+  <li>Encapsulate pattern logic (e.g., multiselect managing selected items)</li>
+</ul>
+
+<p><strong>When to create a molecule</strong>: When 2+ atoms consistently appear together and benefit from shared logic.</p>
+
+<h2 id="elements-page-level-compositions">Elements (Page-Level Compositions)</h2>
+
+<p><strong>Definition</strong>: Full UI sections that show how molecules and atoms combine into complete screens. In Nucleus we call these ELEMENTS to avoid confusion with Angular’s concept of “elements.”</p>
+
+<p><strong>Examples</strong>: Login Page (form inputs + button + header), Dashboard (metrics + navigation).</p>
+
+<p>These are often built as Storybook “stories” or example pages, not always as separate Stencil components.</p>
+
+<h2 id="decision-framework">Decision Framework</h2>
+
+<div class="mermaid">flowchart TD
+    Q{Contains other nucleus components?}
+    Q -->|Yes| M[Molecule]
+    Q -->|No| A[Atom]
+    Q2{Full page section?}
+    Q2 -->|Yes| E[Element]
+</div>
+
+<p><strong>Is it an atom or molecule?</strong> If it contains other Nucleus components, it’s a molecule. Otherwise, atom.</p>
+
+<p><strong>Is it a molecule or element?</strong> If it represents a full page section or workflow, it’s an element. If it’s a reusable pattern, molecule.</p>
+
+<h2 id="storybook-implementation">Storybook Implementation</h2>
+
+<p>Category drives the story <code class="language-plaintext highlighter-rouge">title</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Atom</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ATOMS/Button</span><span class="dl">'</span>
+
+<span class="c1">// Molecule</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">MOLECULES/Header</span><span class="dl">'</span>
+
+<span class="c1">// Element</span>
+<span class="nx">title</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ELEMENTS/Login Page</span><span class="dl">'</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">storySort.order</code> in <code class="language-plaintext highlighter-rouge">preview.ts</code> enforces sidebar order: <code class="language-plaintext highlighter-rouge">['ATOMS', 'MOLECULES', 'ELEMENTS']</code>. Developers navigate from simple to complex.</p>
+
+<h2 id="benefits-for-junior-developers">Benefits for Junior Developers</h2>
+
+<ul>
+  <li><strong>Clear location</strong>: “I need a button” → check ATOMS.</li>
+  <li><strong>Understand dependencies</strong>: Atoms have none; molecules depend on atoms.</li>
+  <li><strong>Implementation order</strong>: Build atoms first, then molecules.</li>
+  <li><strong>Shared vocabulary</strong>: Designers and developers use the same terms.</li>
+</ul>
+
+<h2 id="anti-patterns">Anti-Patterns</h2>
+
+<p><strong>Don’t over-categorize</strong>: If you’re debating for more than a few minutes, pick one and move on.</p>
+
+<p><strong>Don’t create atoms for everything</strong>: Not every styled div needs to be a component. Atoms are for reusable primitives.</p>
+
+<p><strong>Don’t couple atoms to molecules</strong>: Atoms should never import molecules. Dependency flow is one-way.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 11 dives deeper into design tokens—semantic aliases, theming, and consumer overrides without recompiling.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

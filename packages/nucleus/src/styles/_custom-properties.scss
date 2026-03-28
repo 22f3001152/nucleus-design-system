@@ -1,0 +1,61 @@
+@use 'tokens/colors' as colors;
+@use 'tokens/spacing' as spacing;
+@use 'tokens/typography' as typography;
+@use 'tokens/borders' as borders;
+@use 'tokens/shadows' as shadows;
+@use 'tokens/transitions' as transitions;
+
+:root {
+  --nucleus-color-primary: #{colors.$nucleus-color-primary};
+  --nucleus-color-primary-hover: #{colors.$nucleus-color-primary-hover};
+  --nucleus-color-secondary: #{colors.$nucleus-color-secondary};
+  --nucleus-color-secondary-hover: #{colors.$nucleus-color-secondary-hover};
+
+  --nucleus-color-gray-50: #{colors.$nucleus-color-gray-50};
+  --nucleus-color-gray-100: #{colors.$nucleus-color-gray-100};
+  --nucleus-color-gray-200: #{colors.$nucleus-color-gray-200};
+  --nucleus-color-gray-300: #{colors.$nucleus-color-gray-300};
+  --nucleus-color-gray-400: #{colors.$nucleus-color-gray-400};
+  --nucleus-color-gray-500: #{colors.$nucleus-color-gray-500};
+  --nucleus-color-gray-600: #{colors.$nucleus-color-gray-600};
+  --nucleus-color-gray-700: #{colors.$nucleus-color-gray-700};
+  --nucleus-color-gray-800: #{colors.$nucleus-color-gray-800};
+  --nucleus-color-gray-900: #{colors.$nucleus-color-gray-900};
+
+  --nucleus-color-error: #{colors.$nucleus-color-error};
+  --nucleus-color-error-light: #{colors.$nucleus-color-error-light};
+  --nucleus-color-success: #{colors.$nucleus-color-success};
+  --nucleus-color-warning: #{colors.$nucleus-color-warning};
+
+  --nucleus-color-white: #{colors.$nucleus-color-white};
+  --nucleus-color-black: #{colors.$nucleus-color-black};
+
+  --nucleus-font-family-sans: #{typography.$nucleus-font-family-sans};
+  --nucleus-font-size-xs: #{typography.$nucleus-font-size-xs};
+  --nucleus-font-size-sm: #{typography.$nucleus-font-size-sm};
+  --nucleus-font-size-base: #{typography.$nucleus-font-size-base};
+  --nucleus-font-size-lg: #{typography.$nucleus-font-size-lg};
+  --nucleus-font-size-xl: #{typography.$nucleus-font-size-xl};
+
+  --nucleus-spacing-0-5: #{spacing.$nucleus-spacing-0-5};
+  --nucleus-spacing-1: #{spacing.$nucleus-spacing-1};
+  --nucleus-spacing-1-5: #{spacing.$nucleus-spacing-1-5};
+  --nucleus-spacing-2: #{spacing.$nucleus-spacing-2};
+  --nucleus-spacing-2-5: #{spacing.$nucleus-spacing-2-5};
+  --nucleus-spacing-3: #{spacing.$nucleus-spacing-3};
+  --nucleus-spacing-3-5: #{spacing.$nucleus-spacing-3-5};
+  --nucleus-spacing-4: #{spacing.$nucleus-spacing-4};
+  --nucleus-spacing-5: #{spacing.$nucleus-spacing-5};
+  --nucleus-spacing-6: #{spacing.$nucleus-spacing-6};
+
+  --nucleus-radius-md: #{borders.$nucleus-radius-md};
+  --nucleus-radius-lg: #{borders.$nucleus-radius-lg};
+  --nucleus-radius-full: #{borders.$nucleus-radius-full};
+  --nucleus-border-color: #{colors.$nucleus-color-gray-300};
+
+  --nucleus-shadow-sm: #{shadows.$nucleus-shadow-sm};
+  --nucleus-shadow-md: #{shadows.$nucleus-shadow-md};
+
+  --nucleus-transition-fast: #{transitions.$nucleus-transition-duration-fast};
+  --nucleus-transition-base: #{transitions.$nucleus-transition-duration-base};
+}

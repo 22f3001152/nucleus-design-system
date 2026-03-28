@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 14: Deployment and Publishing | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 14: Deployment and Publishing" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Deploying protected Storybook documentation to Azure with infrastructure-as-code, authentication, and automated CI/CD pipelines." />
+<meta property="og:description" content="Deploying protected Storybook documentation to Azure with infrastructure-as-code, authentication, and automated CI/CD pipelines." />
+<link rel="canonical" href="http://localhost:4000/deployment/deployment-and-publishing/" />
+<meta property="og:url" content="http://localhost:4000/deployment/deployment-and-publishing/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 14: Deployment and Publishing" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Deploying protected Storybook documentation to Azure with infrastructure-as-code, authentication, and automated CI/CD pipelines.","headline":"Part 14: Deployment and Publishing","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/deployment/deployment-and-publishing/"},"url":"http://localhost:4000/deployment/deployment-and-publishing/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 14: Deployment and Publishing</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 14</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#deployment-strategy-overview">Deployment Strategy Overview</a></li>
+<li class="toc-entry toc-h2"><a href="#the-bundled-storybook-architecture">The Bundled Storybook Architecture</a></li>
+<li class="toc-entry toc-h2"><a href="#building-the-bundle">Building the Bundle</a></li>
+<li class="toc-entry toc-h2"><a href="#authentication-server">Authentication Server</a></li>
+<li class="toc-entry toc-h2"><a href="#azure-infrastructure-with-bicep">Azure Infrastructure with Bicep</a></li>
+<li class="toc-entry toc-h2"><a href="#application-deployment">Application Deployment</a></li>
+<li class="toc-entry toc-h2"><a href="#environment-variables">Environment Variables</a></li>
+<li class="toc-entry toc-h2"><a href="#first-time-full-deploy">First-Time Full Deploy</a></li>
+<li class="toc-entry toc-h2"><a href="#publishing-npm-packages-when-ready">Publishing npm Packages (When Ready)</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="deployment-strategy-overview">Deployment Strategy Overview</h2>
+
+<p>Design systems typically publish two artifacts: <strong>npm packages</strong> (for developers) and <strong>documentation</strong> (for designers and stakeholders). Nucleus deploys a protected Storybook bundle to Azure Web App with basic authentication so documentation stays private during development. When ready for public release, you can switch to unauthenticated hosting.</p>
+
+<div class="mermaid">flowchart LR
+    A[Build Storybooks] --> B[Bundle + Auth]
+    B --> C[Zip]
+    C --> D[Azure Web App]
+</div>
+
+<h2 id="the-bundled-storybook-architecture">The Bundled Storybook Architecture</h2>
+
+<p>Rather than two separate sites, we combine React and Angular Storybooks into one deployable package:</p>
+
+<ol>
+  <li>Build both Storybooks to static output</li>
+  <li>Combine into one directory with an index page</li>
+  <li>Add a Node.js authentication server</li>
+  <li>Zip and deploy to Azure</li>
+</ol>
+
+<p>The bundle includes React Storybook, Angular Storybook, and an Express server that serves both behind basic auth.</p>
+
+<h2 id="building-the-bundle">Building the Bundle</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run build-storybook:bundle
+</code></pre></div></div>
+
+<p>This script:</p>
+
+<ol>
+  <li>Cleans previous builds</li>
+  <li>Builds React Storybook → <code class="language-plaintext highlighter-rouge">storybook-static/</code></li>
+  <li>Builds Angular Storybook → <code class="language-plaintext highlighter-rouge">storybook-static/</code></li>
+  <li>Runs <code class="language-plaintext highlighter-rouge">prepare-storybook-webapp-package.cjs</code> to combine outputs, add auth server, and create <code class="language-plaintext highlighter-rouge">.deploy/storybook-webapp.zip</code></li>
+</ol>
+
+<h2 id="authentication-server">Authentication Server</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">serve-storybook-bundle-auth.cjs</code> script uses Express and <code class="language-plaintext highlighter-rouge">express-basic-auth</code> to protect all routes. Credentials come from environment variables (<code class="language-plaintext highlighter-rouge">SB_USER</code>, <code class="language-plaintext highlighter-rouge">SB_PASS</code>). Set these in Azure App Settings so the server reads them at runtime.</p>
+
+<h2 id="azure-infrastructure-with-bicep">Azure Infrastructure with Bicep</h2>
+
+<p>Bicep is Azure’s infrastructure-as-code language. The <code class="language-plaintext highlighter-rouge">infra/</code> folder contains:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>infra/
+├── main.bicep           # Entry point, parameters
+├── params/
+│   ├── dev.bicepparam   # Dev environment values
+│   └── prod.bicepparam  # Prod values
+└── modules/
+    ├── app-service-plan.bicep
+    ├── web-app.bicep
+    └── app-insights.bicep
+</code></pre></div></div>
+
+<p><strong>Deploy infrastructure</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run deploy:storybook:infra
+</code></pre></div></div>
+
+<p>This runs <code class="language-plaintext highlighter-rouge">az deployment group create</code> with the Bicep template. Azure creates an App Service Plan, Web App (Node.js 20), and Application Insights. Idempotent—re-running updates existing resources.</p>
+
+<h2 id="application-deployment">Application Deployment</h2>
+
+<p>After infrastructure exists:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run deploy:storybook:app
+</code></pre></div></div>
+
+<p>This builds the bundle, creates the zip, and runs <code class="language-plaintext highlighter-rouge">az webapp deploy</code> to push the zip to the Web App. Azure extracts it, runs <code class="language-plaintext highlighter-rouge">npm install</code>, and starts the auth server. Your Storybook is live at the Web App URL.</p>
+
+<h2 id="environment-variables">Environment Variables</h2>
+
+<p>Set via Azure CLI or Portal:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>az webapp config appsettings <span class="nb">set</span> <span class="se">\</span>
+  <span class="nt">--resource-group</span> nucleus-design-system <span class="se">\</span>
+  <span class="nt">--name</span> <span class="nv">$AZURE_WEBAPP_NAME</span> <span class="se">\</span>
+  <span class="nt">--settings</span> <span class="nv">SB_USER</span><span class="o">=</span>admin <span class="nv">SB_PASS</span><span class="o">=</span>securepassword
+</code></pre></div></div>
+
+<p>The auth server reads these at startup.</p>
+
+<h2 id="first-time-full-deploy">First-Time Full Deploy</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm run deploy:storybook
+</code></pre></div></div>
+
+<p>Runs infra deploy followed by app deploy. Use for initial setup or when both need updating.</p>
+
+<h2 id="publishing-npm-packages-when-ready">Publishing npm Packages (When Ready)</h2>
+
+<p>When publishing to npm:</p>
+
+<ol>
+  <li>Bump versions: <code class="language-plaintext highlighter-rouge">npm version patch</code> in each package</li>
+  <li>Publish order: <code class="language-plaintext highlighter-rouge">nucleus</code> → <code class="language-plaintext highlighter-rouge">nucleus-react</code> → <code class="language-plaintext highlighter-rouge">nucleus-angular</code> (dependency order)</li>
+  <li>Use <code class="language-plaintext highlighter-rouge">npm publish --access public</code> for scoped packages</li>
+</ol>
+
+<p>Tools like Changesets can automate versioning and changelogs across packages.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 15 provides a complete reference of the project structure—what every directory and key file does.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

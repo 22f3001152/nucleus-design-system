@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 3: Stencil.js Deep Dive | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 3: Stencil.js Deep Dive" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Understanding Stencil’s compiler, decorators, lifecycle, and output targets for building production web components." />
+<meta property="og:description" content="Understanding Stencil’s compiler, decorators, lifecycle, and output targets for building production web components." />
+<link rel="canonical" href="http://localhost:4000/stencil/stencil-js-deep-dive/" />
+<meta property="og:url" content="http://localhost:4000/stencil/stencil-js-deep-dive/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 3: Stencil.js Deep Dive" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Understanding Stencil’s compiler, decorators, lifecycle, and output targets for building production web components.","headline":"Part 3: Stencil.js Deep Dive","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/stencil/stencil-js-deep-dive/"},"url":"http://localhost:4000/stencil/stencil-js-deep-dive/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 3: Stencil.js Deep Dive</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 3</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#what-is-stenciljs">What is Stencil.js?</a></li>
+<li class="toc-entry toc-h2"><a href="#stencil-config-walkthrough">Stencil Config Walkthrough</a></li>
+<li class="toc-entry toc-h2"><a href="#output-targets-what-stencil-produces">Output Targets: What Stencil Produces</a></li>
+<li class="toc-entry toc-h2"><a href="#the-decorator-model-explained">The Decorator Model Explained</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#component">@Component</a></li>
+<li class="toc-entry toc-h3"><a href="#prop--public-properties">@Prop — Public Properties</a></li>
+<li class="toc-entry toc-h3"><a href="#state--internal-state">@State — Internal State</a></li>
+<li class="toc-entry toc-h3"><a href="#event--custom-events">@Event — Custom Events</a></li>
+<li class="toc-entry toc-h3"><a href="#watch--react-to-changes">@Watch — React to Changes</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#component-lifecycle-simplified">Component Lifecycle (Simplified)</a></li>
+<li class="toc-entry toc-h2"><a href="#shadow-dom-vs-light-dom">Shadow DOM vs Light DOM</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="what-is-stenciljs">What is Stencil.js?</h2>
+
+<p>Stencil is a <strong>compiler</strong>, not a framework. It transforms TypeScript and JSX into vanilla JavaScript web components that run in browsers with zero runtime dependencies. There’s no “Stencil runtime” to ship—it compiles away. Think of it as a specialized build tool for web components, similar to how Babel transforms modern JavaScript.</p>
+
+<p>Created by the Ionic team, Stencil powers Ionic Framework and is used by companies like Apple, Amazon, and Microsoft for design systems. The key differentiator: you write components that feel like React (JSX, TypeScript, decorators), and Stencil outputs standards-compliant custom elements.</p>
+
+<h2 id="stencil-config-walkthrough">Stencil Config Walkthrough</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">packages/nucleus/stencil.config.ts</code> file controls everything:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">config</span><span class="p">:</span> <span class="nx">Config</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">namespace</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">taskQueue</span><span class="p">:</span> <span class="dl">'</span><span class="s1">async</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">globalStyle</span><span class="p">:</span> <span class="dl">'</span><span class="s1">./src/styles/styles.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">outputTargets</span><span class="p">:</span> <span class="p">[</span><span class="cm">/* ... */</span><span class="p">],</span>
+  <span class="na">plugins</span><span class="p">:</span> <span class="p">[</span><span class="nf">sass</span><span class="p">()]</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">namespace</code></strong>: Affects bundle filenames (e.g., <code class="language-plaintext highlighter-rouge">nucleus.js</code>). Prevents collisions if multiple Stencil libraries load on the same page.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">taskQueue: 'async'</code></strong>: How Stencil batches DOM updates for performance.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">globalStyle</code></strong>: Entry point for design tokens and global CSS. Compiled once into <code class="language-plaintext highlighter-rouge">dist/nucleus/nucleus.css</code>.</li>
+</ul>
+
+<h2 id="output-targets-what-stencil-produces">Output Targets: What Stencil Produces</h2>
+
+<div class="mermaid">flowchart TB
+    subgraph Source["Source"]
+        S[Stencil TSX]
+    end
+    subgraph Outputs["Output Targets"]
+        D[dist - Web Components]
+        RE[React Wrappers]
+        AN[Angular Directives]
+    end
+    S --> D
+    S --> RE
+    S --> AN
+</div>
+
+<p><strong><code class="language-plaintext highlighter-rouge">dist</code> target</strong>: Generates lazy-loaded ES modules, type definitions, and the global stylesheet. This is what consumers import.</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">reactOutputTarget</code></strong>: Auto-generates React components in <code class="language-plaintext highlighter-rouge">nucleus-react</code>. Maps Stencil events to React props (e.g., <code class="language-plaintext highlighter-rouge">nucleusChange</code> → <code class="language-plaintext highlighter-rouge">onNucleusChange</code>).</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">angularOutputTarget</code></strong>: Auto-generates Angular directives with <code class="language-plaintext highlighter-rouge">@ProxyCmp</code>. Integrates with NgModule and change detection.</p>
+
+<h2 id="the-decorator-model-explained">The Decorator Model Explained</h2>
+
+<p>Stencil uses TypeScript decorators to add behavior. If you’ve used Angular or class-based React, these will feel familiar.</p>
+
+<h3 id="component">@Component</h3>
+
+<p>Defines the custom element:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">tag</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">styleUrl</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button.scss</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">shadow</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">tag</code></strong>: The HTML element name. Must contain a hyphen per the web components spec.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">shadow: false</code></strong>: We use Light DOM so global design tokens apply. Shadow DOM would encapsulate styles.</li>
+</ul>
+
+<h3 id="prop--public-properties">@Prop — Public Properties</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Prop</span><span class="p">()</span> <span class="kd">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span> <span class="o">|</span> <span class="dl">'</span><span class="s1">secondary</span><span class="dl">'</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">primary</span><span class="dl">'</span><span class="p">;</span>
+<span class="p">@</span><span class="nd">Prop</span><span class="p">({</span> <span class="na">reflect</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span> <span class="nx">disabled</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Props are reactive: when a parent updates the attribute, the component re-renders. <code class="language-plaintext highlighter-rouge">reflect: true</code> syncs the value back to the HTML attribute, useful for CSS selectors like <code class="language-plaintext highlighter-rouge">button[disabled]</code>.</p>
+
+<h3 id="state--internal-state">@State — Internal State</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">State</span><span class="p">()</span> <span class="nx">isOpen</span><span class="p">:</span> <span class="nx">boolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">@State</code> for internal UI state (dropdown open/closed, etc.). Not exposed to consumers.</p>
+
+<h3 id="event--custom-events">@Event — Custom Events</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Event</span><span class="p">()</span> <span class="nx">nucleusChange</span><span class="p">:</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">string</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="c1">// In handler: this.nucleusChange.emit(newValue);</span>
+</code></pre></div></div>
+
+<p>Consumers listen with <code class="language-plaintext highlighter-rouge">onNucleusChange</code> (React) or <code class="language-plaintext highlighter-rouge">(nucleusChange)="handler($event)"</code> (Angular).</p>
+
+<h3 id="watch--react-to-changes">@Watch — React to Changes</h3>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Watch</span><span class="p">(</span><span class="dl">'</span><span class="s1">value</span><span class="dl">'</span><span class="p">)</span>
+<span class="nf">valueChanged</span><span class="p">(</span><span class="nx">newVal</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">oldVal</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nf">validateInput</span><span class="p">(</span><span class="nx">newVal</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Runs when a prop or state changes. Useful for validation, syncing derived state, or side effects.</p>
+
+<h2 id="component-lifecycle-simplified">Component Lifecycle (Simplified)</h2>
+
+<div class="mermaid">flowchart TD
+    A[componentWillLoad] --> B[First render]
+    B --> C[componentDidLoad]
+    C --> D[Component ready]
+    D -->|Props change| E[render]
+    E --> D
+</div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">componentWillLoad</code></strong>: Once, before first render. Fetch data, initialize state.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">componentDidLoad</code></strong>: Once, after first render. Access DOM, attach listeners.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">render</code></strong>: Called whenever props or state change. Return JSX.</li>
+</ul>
+
+<h2 id="shadow-dom-vs-light-dom">Shadow DOM vs Light DOM</h2>
+
+<p><strong>Shadow DOM</strong> (<code class="language-plaintext highlighter-rouge">shadow: true</code>): Fully encapsulated. Page CSS can’t leak in. Better for third-party widgets.</p>
+
+<p><strong>Light DOM</strong> (<code class="language-plaintext highlighter-rouge">shadow: false</code>): Global styles apply. Easier theming with CSS custom properties. Nucleus uses this so design tokens flow through without piercing shadow boundaries.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 4 walks through building <code class="language-plaintext highlighter-rouge">nucleus-button</code> from scratch—props, styles, tests, and verification.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

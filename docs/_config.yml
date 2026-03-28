@@ -1,0 +1,41 @@
+title: "Building a Design System from Scratch"
+description: "Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows"
+url: "https://nucleusdocsdev.z22.web.core.windows.net"
+baseurl: ""
+theme: minima
+markdown: kramdown
+highlighter: rouge
+permalink: /:categories/:title/
+header_pages:
+  - index.md
+  - pages/series.md
+  - pages/about.md
+  - pages/glossary.md
+  - pages/quick-reference.md
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-toc
+
+collections:
+  posts:
+    output: true
+
+defaults:
+  - scope:
+      path: "_posts"
+      type: "posts"
+    values:
+      layout: "post"
+      toc: true
+
+sass:
+  sass_dir: _sass
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules

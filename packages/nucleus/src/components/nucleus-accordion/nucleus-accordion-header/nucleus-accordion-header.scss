@@ -1,0 +1,21 @@
+.nucleus-accordion-header-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--nucleus-spacing-5);
+  font-weight: 500;
+  text-align: left;
+  color: var(--nucleus-color-gray-500);
+  border: 1px solid var(--nucleus-color-gray-200);
+  border-bottom: 0;
+  background: var(--nucleus-color-white);
+  gap: var(--nucleus-spacing-3);
+}
+.nucleus-accordion-header-button:hover { background: var(--nucleus-color-gray-100); }
+.nucleus-accordion-header-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  transform: rotate(180deg);
+  flex-shrink: 0;
+}

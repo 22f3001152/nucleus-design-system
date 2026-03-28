@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 7: Angular Output Target and Wrapper | Building a Design System from Scratch</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 7: Angular Output Target and Wrapper" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Generating Angular directives that integrate seamlessly with Angular modules, change detection, and forms." />
+<meta property="og:description" content="Generating Angular directives that integrate seamlessly with Angular modules, change detection, and forms." />
+<link rel="canonical" href="http://localhost:4000/angular/angular-output-target/" />
+<meta property="og:url" content="http://localhost:4000/angular/angular-output-target/" />
+<meta property="og:site_name" content="Building a Design System from Scratch" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-03-22T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 7: Angular Output Target and Wrapper" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-03-22T00:00:00+05:30","datePublished":"2026-03-22T00:00:00+05:30","description":"Generating Angular directives that integrate seamlessly with Angular modules, change detection, and forms.","headline":"Part 7: Angular Output Target and Wrapper","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/angular/angular-output-target/"},"url":"http://localhost:4000/angular/angular-output-target/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Building a Design System from Scratch" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Building a Design System from Scratch</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Building a Design System from Scratch</a><a class="page-link" href="/pages/series/">Series</a><a class="page-link" href="/pages/about/">About</a><a class="page-link" href="/pages/glossary/">Glossary</a><a class="page-link" href="/pages/quick-reference/">Quick Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post-wrapper">
+  <header>
+    <h1>Part 7: Angular Output Target and Wrapper</h1>
+    <p><strong>Series:</strong> Building a Design System from Scratch · <strong>Part:</strong> 7</p>
+  </header>
+  
+<div class="toc-wrapper">
+  <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#web-components-in-angular">Web Components in Angular</a></li>
+<li class="toc-entry toc-h2"><a href="#configuring-the-angular-output-target">Configuring the Angular Output Target</a></li>
+<li class="toc-entry toc-h2"><a href="#what-gets-generated">What Gets Generated</a></li>
+<li class="toc-entry toc-h2"><a href="#angular-module-setup">Angular Module Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#forms-integration">Forms Integration</a></li>
+<li class="toc-entry toc-h2"><a href="#event-handling-in-templates">Event Handling in Templates</a></li>
+<li class="toc-entry toc-h2"><a href="#build-process">Build Process</a></li>
+<li class="toc-entry toc-h2"><a href="#standalone-component-support-angular-14">Standalone Component Support (Angular 14+)</a></li>
+<li class="toc-entry toc-h2"><a href="#change-detection">Change Detection</a></li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
+</ul>
+</div>
+
+
+  <h2 id="web-components-in-angular">Web Components in Angular</h2>
+
+<p>Angular has built-in support for custom elements. You can use <code class="language-plaintext highlighter-rouge">&lt;nucleus-button&gt;</code> in templates if you add <code class="language-plaintext highlighter-rouge">CUSTOM_ELEMENTS_SCHEMA</code> to your NgModule. But without a wrapper, you lose TypeScript validation, template binding syntax for events, and Angular Forms integration (ngModel, FormControl). The Angular output target generates proper directives that fix all of this.</p>
+
+<div class="mermaid">flowchart LR
+    A[Stencil Component] --> B[angularOutputTarget]
+    B --> C[Angular Directives]
+    C --> D[NgModule]
+</div>
+
+<h2 id="configuring-the-angular-output-target">Configuring the Angular Output Target</h2>
+
+<p>In <code class="language-plaintext highlighter-rouge">stencil.config.ts</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">angularOutputTarget</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@stencil/angular-output-target</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="nf">angularOutputTarget</span><span class="p">({</span>
+  <span class="na">componentCorePackage</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">outputType</span><span class="p">:</span> <span class="dl">'</span><span class="s1">component</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">directivesProxyFile</span><span class="p">:</span> <span class="dl">'</span><span class="s1">../nucleus-angular/projects/nucleus-ng-component-library/src/lib/.../proxies.ts</span><span class="dl">'</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">directivesProxyFile</code></strong>: Path where Stencil writes generated directive code. This file is overwritten on every build.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">outputType: 'component'</code></strong>: Generates component-style directives (vs standalone for newer Angular).</li>
+</ul>
+
+<h2 id="what-gets-generated">What Gets Generated</h2>
+
+<p>The generated <code class="language-plaintext highlighter-rouge">proxies.ts</code> contains Angular components that wrap the custom elements:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">ProxyCmp</span><span class="p">({</span> <span class="na">inputs</span><span class="p">:</span> <span class="p">[</span><span class="dl">'</span><span class="s1">type</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">size</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">rounded</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">disabled</span><span class="dl">'</span><span class="p">]</span> <span class="p">})</span>
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">selector</span><span class="p">:</span> <span class="dl">'</span><span class="s1">nucleus-button</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">changeDetection</span><span class="p">:</span> <span class="nx">ChangeDetectionStrategy</span><span class="p">.</span><span class="nx">OnPush</span><span class="p">,</span>
+  <span class="na">template</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;ng-content&gt;&lt;/ng-content&gt;</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">standalone</span><span class="p">:</span> <span class="kc">false</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">NucleusButton</span> <span class="p">{</span>
+  <span class="k">protected</span> <span class="nx">el</span><span class="p">:</span> <span class="nx">HTMLElement</span><span class="p">;</span>
+  <span class="nf">constructor</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">proxyOutputs</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">,</span> <span class="p">[</span><span class="dl">'</span><span class="s1">nucleusClick</span><span class="dl">'</span><span class="p">]);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">@ProxyCmp</code> decorator maps Stencil props to Angular inputs and forwards events to outputs. Content projection uses <code class="language-plaintext highlighter-rouge">&lt;ng-content&gt;</code>.</p>
+
+<h2 id="angular-module-setup">Angular Module Setup</h2>
+
+<p>Consumers import <code class="language-plaintext highlighter-rouge">NucleusComponentLibraryModule</code>:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">NgModule</span><span class="p">({</span>
+  <span class="na">imports</span><span class="p">:</span> <span class="p">[</span>
+    <span class="nx">BrowserModule</span><span class="p">,</span>
+    <span class="nx">NucleusComponentLibraryModule</span>
+  <span class="p">],</span>
+  <span class="c1">// ...</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">AppModule</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>The module declares all generated directives and calls <code class="language-plaintext highlighter-rouge">defineCustomElements(window)</code> so web components register. Consumers don’t need to add <code class="language-plaintext highlighter-rouge">CUSTOM_ELEMENTS_SCHEMA</code>—it’s scoped to the library module.</p>
+
+<h2 id="forms-integration">Forms Integration</h2>
+
+<p>For inputs, checkboxes, and other form controls, you can configure value accessors so <code class="language-plaintext highlighter-rouge">ngModel</code> and <code class="language-plaintext highlighter-rouge">formControlName</code> work:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;nucleus-input</span> <span class="na">[(ngModel)]=</span><span class="s">"username"</span> <span class="na">placeholder=</span><span class="s">"Username"</span><span class="nt">&gt;&lt;/nucleus-input&gt;</span>
+</code></pre></div></div>
+
+<p>With the right <code class="language-plaintext highlighter-rouge">valueAccessorConfigs</code> in the output target, Angular Forms bind correctly to the custom element’s value and change events.</p>
+
+<h2 id="event-handling-in-templates">Event Handling in Templates</h2>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;nucleus-button</span> <span class="na">type=</span><span class="s">"primary"</span> <span class="na">(nucleusClick)=</span><span class="s">"onSubmit()"</span><span class="nt">&gt;</span>
+  Submit
+<span class="nt">&lt;/nucleus-button&gt;</span>
+</code></pre></div></div>
+
+<p>Angular’s event binding <code class="language-plaintext highlighter-rouge">(nucleusClick)</code> works like any other output. TypeScript preserves event typings.</p>
+
+<h2 id="build-process">Build Process</h2>
+
+<div class="mermaid">flowchart TB
+    A[Build nucleus] --> B[Generate proxies.ts]
+    B --> C[ng-packagr build]
+    C --> D[APF dist/]
+</div>
+
+<p>The Angular library uses <code class="language-plaintext highlighter-rouge">ng-packagr</code> to compile to Angular Package Format. Build order: nucleus first, then nucleus-angular. Nx handles this via <code class="language-plaintext highlighter-rouge">dependsOn</code>.</p>
+
+<h2 id="standalone-component-support-angular-14">Standalone Component Support (Angular 14+)</h2>
+
+<p>For standalone components, import the directive directly:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">standalone</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">imports</span><span class="p">:</span> <span class="p">[</span><span class="nx">NucleusButton</span><span class="p">],</span>
+  <span class="na">template</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&lt;nucleus-button type="primary"&gt;Click&lt;/nucleus-button&gt;</span><span class="dl">'</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">LoginComponent</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<h2 id="change-detection">Change Detection</h2>
+
+<p>Generated directives use <code class="language-plaintext highlighter-rouge">ChangeDetectionStrategy.OnPush</code> for performance. They re-check only when inputs change. Zone.js ensures custom element attribute updates still trigger detection when needed.</p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Part 8 covers Storybook setup for React—configuring the dev server, loading global styles, and organizing stories by Atomic Design.</p>
+
+</article>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const codeBlocks = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre');
+      if (!pre) continue;
+      const content = code.textContent?.trim();
+      if (!content) continue;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = content;
+      div.style.marginBottom = '1.5rem';
+      pre.replaceWith(div);
+    }
+    await mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+  });
+</script>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Building a Design System from Scratch</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Building a Design System from Scratch</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Production-grade design system with Stencil.js, SCSS tokens, React and Angular wrappers, Storybook, and deployment workflows</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

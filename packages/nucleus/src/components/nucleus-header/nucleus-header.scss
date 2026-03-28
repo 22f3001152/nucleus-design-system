@@ -1,0 +1,56 @@
+.nucleus-header { width: 100%; border-bottom: 1px solid var(--nucleus-color-gray-200); background: var(--nucleus-color-white); }
+.nucleus-header-bar {
+  position: relative;
+  margin: 0 auto;
+  max-width: 80rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nucleus-spacing-4);
+  padding: var(--nucleus-spacing-3) var(--nucleus-spacing-4);
+}
+.nucleus-header-brand { font-size: var(--nucleus-font-size-base); font-weight: 600; color: var(--nucleus-color-gray-800); }
+.nucleus-header-burger {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--nucleus-radius-md);
+  border: 1px solid var(--nucleus-color-gray-300);
+  padding: var(--nucleus-spacing-2) var(--nucleus-spacing-3);
+  font-size: var(--nucleus-font-size-base);
+  color: var(--nucleus-color-gray-700);
+  background: var(--nucleus-color-white);
+}
+.nucleus-header-nav { display: none; align-items: center; gap: var(--nucleus-spacing-4); }
+.nucleus-header-close {
+  margin-bottom: var(--nucleus-spacing-2);
+  display: inline-flex;
+  border-radius: var(--nucleus-radius-md);
+  border: 1px solid var(--nucleus-color-gray-300);
+  padding: var(--nucleus-spacing-2) var(--nucleus-spacing-3);
+  font-size: var(--nucleus-font-size-sm);
+  color: var(--nucleus-color-gray-700);
+  background: var(--nucleus-color-white);
+}
+@media (min-width: 768px) {
+  .nucleus-header-burger { display: none; }
+  .nucleus-header-close { display: none; }
+  .nucleus-header-nav { display: flex; }
+}
+@media (max-width: 767px) {
+  .nucleus-header-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--nucleus-spacing-3);
+    border-bottom: 1px solid var(--nucleus-color-gray-200);
+    background: var(--nucleus-color-white);
+    padding: var(--nucleus-spacing-3) var(--nucleus-spacing-4);
+    box-shadow: var(--nucleus-shadow-sm);
+  }
+  .nucleus-header-nav.nucleus-header-nav-open { display: flex; }
+}
