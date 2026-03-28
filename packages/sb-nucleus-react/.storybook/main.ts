@@ -15,10 +15,14 @@ const config = {
       config.base = '/nucleus-design-system/';
     }
     
-    // Force Rollup/Vite to resolve the explicit path for nucleus/loader in a monorepo
+    // Resolve all nucleus/* subpath imports (loader, components, etc.) to the sibling workspace package
+    const nucleusRoot = join(dirname(fileURLToPath(import.meta.url)), '../../nucleus');
     config.resolve = config.resolve || {};
-    config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias['nucleus/loader'] = join(dirname(fileURLToPath(import.meta.url)), '../../nucleus/loader/index.js');
+    config.resolve.alias = [
+      ...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
+      { find: /^nucleus\/(.*)$/, replacement: join(nucleusRoot, '$1') },
+      { find: /^nucleus$/, replacement: join(nucleusRoot, 'dist/index.js') },
+    ];
     
     return config;
   },
