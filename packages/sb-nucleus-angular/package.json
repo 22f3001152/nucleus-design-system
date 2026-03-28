@@ -19,8 +19,6 @@
     "test": "jest --no-cache",
     "storybook": "ng run sb-nucleus-angular:storybook",
     "build-storybook": "ng run sb-nucleus-angular:build-storybook",
-    "storybook:protected": "node ../../scripts/serve-storybook-auth.cjs --dir storybook-static --port 6007",
-    "build-and-serve-protected": "npm run build-storybook && npm run storybook:protected",
     "lint": "biome lint \"src\"",
     "lint:fix": "biome check --apply \"src\"",
     "format": "biome format \"src\" --write"

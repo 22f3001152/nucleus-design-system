@@ -9,7 +9,13 @@ const config = {
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
-  }
+  },
+  async viteFinal(config: any, { configType }: { configType: string }) {
+    if (configType === 'PRODUCTION') {
+      config.base = '/nucleus-design-system/';
+    }
+    return config;
+  },
 };
 export default config;
 

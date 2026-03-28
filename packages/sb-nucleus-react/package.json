@@ -26,8 +26,6 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "storybook:protected": "node ../../scripts/serve-storybook-auth.cjs --dir storybook-static --port 6006",
-    "build-and-serve-protected": "npm run build-storybook && npm run storybook:protected",
     "lint": "biome lint \"src\"",
     "lint:fix": "biome check --apply \"src\"",
     "format": "biome format \"src\" --write"
