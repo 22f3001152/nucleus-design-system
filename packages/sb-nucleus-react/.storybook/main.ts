@@ -20,6 +20,7 @@ const config = {
     config.resolve = config.resolve || {};
     config.resolve.alias = [
       ...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
+      { find: 'nucleus/loader', replacement: join(nucleusRoot, 'loader/index.js') },
       { find: /^nucleus\/(.*)$/, replacement: join(nucleusRoot, '$1') },
       { find: /^nucleus$/, replacement: join(nucleusRoot, 'dist/index.js') },
     ];
