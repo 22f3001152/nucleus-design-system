@@ -150,7 +150,7 @@ const switcherJs = `
       #nucleus-toolbar {
         position: fixed;
         bottom: 16px;
-        left: 16px;
+        right: 16px;
         z-index: 2147483647;
         display: flex;
         flex-direction: column;
