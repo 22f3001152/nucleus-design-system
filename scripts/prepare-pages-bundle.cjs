@@ -76,11 +76,11 @@ const switcherJs = `
     const targetLabel = isAngular ? 'Switch to React' : 'Switch to Angular';
     
     const styleContent = \`
-      /* --- GLOBAL STORYBOOK THEMING (ANT DESIGN INSPIRED) --- */
+      /* --- NUCLEUS STORYBOOK THEMING (CLEAN & SIMPLE) --- */
       @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
       body, .sidebar-container, .sidebar-item, button, span, div, a, p, h1, h2, h3 {
-        font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+        font-family: 'Roboto', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
       }
 
       /* Hide All Sidebar Icons and Chevrons */
@@ -88,38 +88,45 @@ const switcherJs = `
       [data-name="expand"], 
       [id*="explorer-"] svg, 
       button > svg,
-      .sidebar-item span svg {
+      .sidebar-item span svg,
+      .sidebar-item-icon {
         display: none !important;
       }
       
-      /* Reset sidebar layout since icons are gone */
+      /* Sidebar layout for Clean & Simple look */
+      .sidebar-header {
+        border-bottom: 1px solid #f0f0f0 !important;
+        margin-bottom: 12px !important;
+      }
+
       .sidebar-item {
-        padding-left: 16px !important;
+        padding-left: 20px !important;
         padding-right: 16px !important;
-        margin: 2px 0 !important;
+        margin: 1px 0 !important;
         border-radius: 0 !important;
-        color: rgba(0, 0, 0, 0.88) !important;
-        font-size: 14px !important;
-        height: 40px !important;
+        color: #4b5563 !important;
+        font-size: 15px !important; /* Improved visibility */
+        height: 44px !important;  /* Taller items for clean spacing */
         display: flex !important;
         align-items: center !important;
-        transition: all 0.2s !important;
+        transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
         position: relative !important;
         background: transparent !important;
       }
 
       .sidebar-item:hover {
-        background: rgba(0, 0, 0, 0.04) !important;
+        background: #fdf2ff !important; /* Very light purple hover */
+        color: #7e5bef !important;
       }
 
-      /* Active Sidebar Item */
+      /* Active Sidebar Item (Nucleus Purple Theme) */
       .sidebar-item[aria-selected="true"] {
-        background: #e6f4ff !important;
-        color: #1677ff !important;
+        background: #f5f3ff !important;
+        color: #7e5bef !important;
         font-weight: 600 !important;
       }
 
-      /* Ant Design blue bar */
+      /* Selected state blue indicator bar */
       .sidebar-item[aria-selected="true"]::after {
         content: "";
         position: absolute;
@@ -127,62 +134,63 @@ const switcherJs = `
         right: 0;
         bottom: 0;
         width: 3px;
-        background: #1677ff;
+        background: #7e5bef;
       }
 
       .sidebar-subheading {
-        font-weight: 600 !important;
-        color: rgba(0, 0, 0, 0.45) !important;
+        font-weight: 700 !important;
+        color: #9ca3af !important;
         text-transform: uppercase !important;
-        font-size: 11px !important;
-        letter-spacing: 0.1em !important;
-        padding: 16px 16px 8px !important;
+        font-size: 12px !important;
+        letter-spacing: 0.15em !important;
+        padding: 24px 20px 8px !important;
       }
 
       /* Platform Switcher Toolbar */
       #nucleus-toolbar {
         position: fixed;
-        bottom: 12px;
-        left: 12px;
+        bottom: 16px;
+        left: 16px;
         z-index: 2147483647;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
         background: white;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #f0f0f0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        min-width: 160px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        min-width: 180px;
       }
       .toolbar-title {
-        font-size: 10px;
-        font-weight: 700;
+        font-size: 11px;
+        font-weight: 800;
         text-transform: uppercase;
-        color: #1677ff;
+        color: #7e5bef;
         margin-bottom: 4px;
       }
       .toolbar-btn {
-        background: #1677ff;
+        background: #7e5bef;
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 13px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
         text-align: center;
         text-decoration: none;
         display: block;
+        transition: background 0.2s;
       }
-      .toolbar-btn:hover { background: #4096ff; }
+      .toolbar-btn:hover { background: #6344d4; }
       .toolbar-btn.secondary {
-        background: transparent;
-        color: rgba(0,0,0,0.45);
-        border: 1px solid #d9d9d9;
+        background: white;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
         margin-top: 2px;
       }
-      .toolbar-btn.secondary:hover { border-color: #1677ff; color: #1677ff; }
+      .toolbar-btn.secondary:hover { border-color: #7e5bef; color: #7e5bef; }
     \`;
 
     const styleEl = document.createElement('style');
