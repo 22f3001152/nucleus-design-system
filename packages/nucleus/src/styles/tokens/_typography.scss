@@ -14,3 +14,22 @@ $nucleus-font-weight-normal: 400 !default;
 $nucleus-font-weight-medium: 500 !default;
 $nucleus-font-weight-semibold: 600 !default;
 $nucleus-font-weight-bold: 700 !default;
+
+// --- TYPOGRAPHY UTILITY CLASSES (TAILWIND COMPATIBLE) ---
+
+.font-sans { font-family: var(--nucleus-font-family-sans) !important; }
+
+.text-xs { font-size: var(--nucleus-font-size-xs) !important; }
+.text-sm { font-size: var(--nucleus-font-size-sm) !important; }
+.text-base { font-size: var(--nucleus-font-size-base) !important; }
+.text-lg { font-size: var(--nucleus-font-size-lg) !important; }
+.text-xl { font-size: var(--nucleus-font-size-xl) !important; }
+
+.font-normal { font-weight: var(--nucleus-font-weight-normal, #{$nucleus-font-weight-normal}) !important; }
+.font-medium { font-weight: var(--nucleus-font-weight-medium, #{$nucleus-font-weight-medium}) !important; }
+.font-semibold { font-weight: var(--nucleus-font-weight-semibold, #{$nucleus-font-weight-semibold}) !important; }
+.font-bold { font-weight: var(--nucleus-font-weight-bold, #{$nucleus-font-weight-bold}) !important; }
+
+.leading-tight { line-height: #{$nucleus-line-height-tight} !important; }
+.leading-normal { line-height: #{$nucleus-line-height-normal} !important; }
+.leading-relaxed { line-height: #{$nucleus-line-height-relaxed} !important; }

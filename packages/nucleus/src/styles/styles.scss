@@ -9,11 +9,16 @@
 body {
   margin: 0;
   font-family: var(--nucleus-font-family-sans);
-  line-height: 1.5;
+  font-size: var(--nucleus-font-size-base);
+  line-height: var(--nucleus-line-height-normal, 1.5);
+  color: var(--nucleus-color-gray-900);
+  background-color: var(--nucleus-color-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+// Default font-face is 'Comic Neue'. 
+// To change this, override --nucleus-font-family-sans in your :root.
 @font-face {
   font-family: 'Comic Neue';
   src: url('/dist/nucleus/fonts/ComicNeue-Regular.woff2') format('woff2');

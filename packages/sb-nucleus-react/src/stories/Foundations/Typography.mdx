@@ -1,0 +1,152 @@
+import { Meta, Typeset } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Typography" />
+
+# Typography
+
+Nucleus uses a structured typography system based on design tokens. All typography is driven by CSS custom properties, allowing for easy global or scoped overrides.
+
+## Theming & Overriding
+
+The design system is built to be highly customizable. If you are importing Nucleus into your React or Angular application, you can easily override the default typography by updating the CSS custom properties in your global stylesheet (e.g., `App.css`, `styles.scss`, or `index.css`).
+
+### Global Overrides
+
+To update fonts globally for your entire application, redefine the variables in the `:root` pseudo-class.
+
+```css
+/* App.css or global.scss */
+:root {
+  /* Set your primary font family */
+  --nucleus-font-family-sans: 'Inter', system-ui, sans-serif;
+
+  /* Optionally adjust the base scale */
+  --nucleus-font-size-base: 18px;
+  --nucleus-font-weight-bold: 900;
+}
+```
+
+### Scoped Overrides
+
+If you only want to change the typography for a specific section or component of your app, you can scope the variables to a specific class.
+
+```css
+/* Only apply special fonts to the dashboard section */
+### Angular 18+ Integration
+
+In an Angular 18+ project, you can apply these overrides in your global `styles.scss` or within specific standalone component styles. Because CSS custom properties cross Angular's view encapsulation boundaries, they are a powerful way to theme external component libraries.
+
+#### Global Override (src/styles.scss)
+
+```scss
+/* src/styles.scss */
+:root {
+  --nucleus-font-family-sans: 'Outfit', sans-serif;
+  --nucleus-font-size-base: 1.1rem;
+}
+```
+
+#### Component-Level Override (example.component.scss)
+
+If you only want a specific component to use a different typography, apply the variable to the `:host` selector.
+
+```scss
+/* src/app/dashboard/dashboard.component.scss */
+:host {
+  /* Only overrides values for this component and its children */
+  --nucleus-font-family-sans: 'Inter', sans-serif;
+  --nucleus-font-weight-medium: 600;
+}
+```
+
+## Utility Classes
+
+We provide a curated list of utility classes compatible with Tailwind CSS to apply typography styles directly to elements.
+
+<table>
+  <thead>
+    <tr>
+      <th>Class</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>.font-sans</code></td><td>Applies the primary font family</td></tr>
+    <tr><td><code>.text-xs</code></td><td>Font size: 0.75rem (12px)</td></tr>
+    <tr><td><code>.text-sm</code></td><td>Font size: 0.875rem (14px)</td></tr>
+    <tr><td><code>.text-base</code></td><td>Font size: 1rem (16px)</td></tr>
+    <tr><td><code>.text-lg</code></td><td>Font size: 1.125rem (18px)</td></tr>
+    <tr><td><code>.text-xl</code></td><td>Font size: 1.25rem (20px)</td></tr>
+    <tr><td><code>.font-normal</code></td><td>Font weight: 400</td></tr>
+    <tr><td><code>.font-medium</code></td><td>Font weight: 500</td></tr>
+    <tr><td><code>.font-semibold</code></td><td>Font weight: 600</td></tr>
+    <tr><td><code>.font-bold</code></td><td>Font weight: 700</td></tr>
+    <tr><td><code>.leading-tight</code></td><td>Line height: 1.25</td></tr>
+    <tr><td><code>.leading-normal</code></td><td>Line height: 1.5</td></tr>
+    <tr><td><code>.leading-relaxed</code></td><td>Line height: 1.75</td></tr>
+  </tbody>
+</table>
+
+
+## Scale Preview
+
+export const typography = {
+  type: {
+    primary: 'var(--nucleus-font-family-sans)',
+  },
+  weight: {
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
+  },
+  size: {
+    xs: 12,
+    sm: 14,
+    base: 16,
+    lg: 18,
+    xl: 20,
+  },
+};
+
+export const SampleText = 'Loreum Ipsum - The quick brown fox jumps over the lazy dog';
+
+### Font Weights
+<Typeset
+  fontSizes={[16]}
+  fontWeight={400}
+  sampleText="Normal (400) - Loreum Ipsum"
+  fontFamily={typography.type.primary}
+/>
+<Typeset
+  fontSizes={[16]}
+  fontWeight={500}
+  sampleText="Medium (500) - Loreum Ipsum"
+  fontFamily={typography.type.primary}
+/>
+<Typeset
+  fontSizes={[16]}
+  fontWeight={600}
+  sampleText="Semibold (600) - Loreum Ipsum"
+  fontFamily={typography.type.primary}
+/>
+<Typeset
+  fontSizes={[16]}
+  fontWeight={700}
+  sampleText="Bold (700) - Loreum Ipsum"
+  fontFamily={typography.type.primary}
+/>
+
+### Font Sizes
+<Typeset
+  fontSizes={[
+    typography.size.xs,
+    typography.size.sm,
+    typography.size.base,
+    typography.size.lg,
+    typography.size.xl,
+  ]}
+  fontWeight={typography.weight.normal}
+  sampleText={SampleText}
+  fontFamily={typography.type.primary}
+/>
