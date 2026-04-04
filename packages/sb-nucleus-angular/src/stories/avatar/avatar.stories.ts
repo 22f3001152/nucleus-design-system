@@ -17,6 +17,30 @@ const meta: Meta = {
     type: { control: "select", options: ["primary", "secondary"] },
     src: { control: "text" },
   } as any,
+  render: (args: any) => {
+    const props = {
+      name: args.name ?? "Nucleus User",
+      alt: args.alt ?? "Nucleus Avatar",
+      shape: args.shape ?? "circle",
+      size: args.size ?? "md",
+      type: args.type ?? "primary",
+      src: args.src ?? "",
+    };
+
+    return {
+      props,
+      template: `
+      <nucleus-avatar
+        [name]="name"
+        [alt]="alt"
+        [shape]="shape"
+        [size]="size"
+        [type]="type"
+        [src]="src"
+      ></nucleus-avatar>
+    `,
+    };
+  },
   parameters: {
     docs: {
       description: {
@@ -28,21 +52,7 @@ const meta: Meta = {
 
 export default meta;
 
-export const Primary: StoryObj = {
-  render: (args: any) => ({
-    props: args,
-    template: `
-      <nucleus-avatar
-        [name]="name"
-        [alt]="alt"
-        [shape]="shape"
-        [size]="size"
-        [type]="type"
-        [src]="src"
-      ></nucleus-avatar>
-    `,
-  }),
-};
+export const Primary: StoryObj = {};
 
 export const WithImage: StoryObj = {
   args: {
